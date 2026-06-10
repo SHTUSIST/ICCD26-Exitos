@@ -1,0 +1,190 @@
+\section{Introduction}\label{sec:intro_background}
+
+%Databases widely employ logging % write-ahead log (WAL) files 
+%to record data updates,
+%Databases widely utilize the logging technique 
+%in order to guarantee  consistency and durability 
+Many databases rely on logging to guarantee  consistency and durability 
+\cite{DB:OceanBase:VLDB-2022,mysql2013mysql}. %,huang2022removing}.
+%There are redo and undo logging schemes which, respectively, write newer and existing copies of data
+%into a log file. 
+%More importantly, after the file write, both logging schemes will call the costly fsync  to enforce persistence,
+After writing data  to a log file, databases call the costly fsync  to enforce persistence.
+Such persistent writes make logging incur severe performance cost~\cite{lee2015waldio}. %,huang2022removing}. 
+%%%%In practical, log files are generally used for backup. They will not be read unless a recovery is called.
+%WAL writes data to a log file for backup with a costly fsync syscall followed. 
+%Due to the high cost of fsync,
+%logging I/Os have exposed a serious performance bottleneck.
+
+Researchers have considered  minimizing the cost of database logging.
+At the hardware level, modern solid-state drives (SSDs) are equipped with the power loss protection (PLP). 
+PLP enables data supposed to be flushed into persistent media to be
+held in the internal cache of SSD~\cite{SSD:PLP:TC-2016,PLP:samsung}.
+The hardware time cost  is hence largely reduced for fsync, but 
+%Yet, 
+this  amplifies the relative overhead, i.e., {\em software tax}, imposed by    software layers. % stack. 
+Correspondingly,
+%software developers   have proposed a few  solutions to lower the logging cost and 
+to lower the software tax,
+%At the operating system (OS), 
+researchers
+%systems architects 
+have optimized fsync  at the operating system (OS) %with a lot of efforts
+ level~\cite{fsync:rethink:OSDI-2006,fsync:OptFS:SOSP-2013,fsync:FastCommit:ATC-2024,fsync:iJournaling:ATC-2017,fsync:RFLUSH:FAST-2018}.
+At the application level, a few databases
+  preallocate log files using the fallocate system call (syscall) \cite{DB:OceanBase:VLDB-2022,mysql2013mysql}.
+ Preallocation offers two   benefits. First, by reserving contiguous disk space in advance, %preallocated files 
+ preallocation
+ eliminates the   cost 
+of runtime block  allocations.
+Second, for a preallocated file, invoking fdatasync, rather than fsync, generally does not trigger file system (e.g., Ext4) journaling for metadata.
+% if the file size is not changed. 
+However, our quantitative study indicates that, even with these joint multi-level optimizations,
+%the cost of 
+logging remains as a serious bottleneck, impacting the performance of database. 
+For example, on a low-latency NVMe SSD  with the PLP feature and the latest Ext4,
+ disabling all logging actions for MySQL  \cite{mysql2013mysql}
+increases its performance by 109.0\%.
+ %, its performance boosts by 109.0\%.
+Particularly,
+%More importantly,
+the software tax accounts for 60.2\% time for a logging write on average. % with a 
+
+%More aggressive state-of-the-art
+%In the meantime,
+On the other hand,
+state-of-the-art solutions to mitigate the software tax charged on file I/Os %overhead 
+encounter  adoption barriers due to their implementation complexity and practical limitations. Kernel-bypass techniques, such as SPDK \cite{SSD:SPDK:CloudCom-2017} and NVMeDirect~\cite{SSD:NVMeDirect:HotStorage-2016}, demand extensive reprogramming. %This requirement for large-scale code modifications restricts their widespread adoption. 
+As to approaches involving hardware and/or OS changes, such as Moneta-D \cite{SSD:Moneta-D:ASPLOS-2012} and BypassD~\cite{SSD:BypassD:ASPLOS-2024}, 
+their dependencies on   specialized hardware gadgets and intrusive kernel modifications % . 
+%These dependencies 
+elevate deployment costs and may introduce potential security vulnerabilities,   limiting their practical utility.
+
+\begin{comment}
+ 
+
+In this paper, we attempt to exempt the software tax specifically charged on logging I/Os for databases
+in an {\em all-in-software} approach.
+We attentively examine the structure and usage of a log file.
+ A log file, if preallocated and initialized, undergoes virtually no changes in its structural layout.
+Generally, neither space reallocation nor alteration of access permissions occurs.
+Typically a database keeps reusing the space of its log file in a circular manner.
+%A log file is reused in a circular manner.
+Consequently, all disk blocks of the file remain stable.
+\end{comment}
+
+In this paper, we aim to exempt the runtime software tax charged on %persistent writes for 
+database logging %%%writes
+in an {\em all-in-software} fashion. We are inspired by the observation that a 
+ log file, if preallocated, has a stable structure with fixed per-file offset-to-block mappings 
+ that can be neatly reorganized and referenced. Moreover, %More importantly,
+ writing data to it
+  does not alter the file's structural layout. This avoids space  allocation, metadata journaling, 
+and access permission changes. 
+For non-preallocated log files, we think about if the underlying file system such as Ext4 has implicit 
+features that can be used to resemble a preallocation-like effect.
+%are to exploit implicit features of the underlying file system 
+%to resemble a preallocation-like effect.
+
+
+%We further consider how to handle writes issued to a non-preallocated log file, 
+%treating them similarly like a preallocated one.
+%  a preallocation-like way.
+%making dynamically growing files be handled like a preallocated file.
+%  These are just the main contributors of the aforementioned runtime software tax.
+
+We accordingly develop \odes. \odes builds a shortcut path  that bypasses almost all 
+software layers and delivers data directly from database to storage device. 
+To this end, it has the following key aspects.
+\begin{itemize}[leftmargin=4mm]\setlength{\itemsep}{-\itemsep}
+	\item 
+	For a preallocated log file, % with a stable structural layout, 
+	\odes extracts and caches the file's offset-to-block mappings 
+	in an in-memory structure called the {\em \underline{M}etadat\underline{a} \underline{Co}llector} (Maco). 
+	Maco enables \odes to promptly determine target blocks without querying the file's indexing structure (e.g., extent tree in Ext4). 
+	\item 
+	At runtime, \odes establishes a new shortcut I/O path by leveraging eBPF~\cite{ebpf} 
+	and {ioctl}~\cite{ioctlWik84:online}. 
+	Referring to per-file mappings kept in Maco, \odes uses eBPF to intercept and redirect 
+	persistent writes
+	%logging write and fdatasync
+	from database to device driver, 
+	and pushes down data via ioctl interfaces  to target blocks.
+	%invokes  {ioctl} interfaces to push down data directly to target blocks. 
+	\item 
+	For non-preallocated log files, \odes manages a pool of {\em donor} files to pre-reserve storage spaces. % blocks. 
+	Upon an allocation demand to extend a  log file, it exploits Ext4's {\em move-extent} feature \cite{ext4moveextent} %,mathur2007ext4} 
+	 to efficiently transfer a range of blocks from a donor file to the log file, which
+	%This  file can then be 
+	is then handled %by \odes 
+	in \odes's shortcut I/O path like a preallocated log file. 
+\end{itemize}
+
+
+% In short,
+%%%\odes makes a log file, regardless of being preallocated or not, be written in a preallocation-like way. 	
+%We incorporate several optimizations to enhance \odes. 
+%The rationale behind these aspects is as follows.
+%The original usage of 
+Ext4 primarily uses move-extent   for  defragmentation \cite{ext4moveextent}. %~\cite{ext4moveextent,mathur2007ext4}.
+We    utilize it to online transfer  blocks and 
+%transfer a contiguous range of blocks to a growing file,
+make a preallocation-like effect for \odes to process persistent writes for non-preallocated log files. %similar effect of.
+%, in order to incur the minimal cost of %, and causes the least 
+%allocation and journaling. % for acquiring  contiguous blocks.
+%Moreover,
+%To gain higher   efficiency,
+We further optimize \odes as follows.
+First, we register preallocated donor files in the Maco  structure % obtain their block numbers, which are also kept in Maco 
+to accelerate  transfers.
+Second, we
+leverage  io\_uring~\cite{iouring} to do asynchronous transfers outside of the critical path.
+Third,
+We partition the Maco and donor pool  to be  distributed per CPU core for scalability. 
+%	The transfer happens asynchronously outside the critical path.
+Last but not the least, we deliver data to storage   by device-specific commands via   ioctl interfaces and enable
+%we organize   Maco at the boundary of kernel and user spaces, to help eBPF intercept logging write and fdatasync. Finally, 
+%\odes is compatible 
+compatibility
+with  SATA and NVMe SSDs.
+
+\begin{comment}
+	we deliver data by
+%The delivery of data  is done by 
+device-specific commands,
+such as   {\tt nvme-flush} \cite{nvme-flush-command} for NVMe SSD.
+%Additionally, \odes supports both common and stricter access controls through the eBPF LSM (Linux Security Modules) hooks \cite{270581,eBPF-LSM,prog-LSM}.
+\end{comment}
+
+We  prototype \odes in Linux kernel 6.6.5 without any hardware change. 
+%We evaluate  it  with  two databases, i.e., OceanBase  \cite{DB:OceanBase:VLDB-2022} and MySQL \cite{mysql2013mysql}. % applications.
+Experiments confirm  that 
+\odes significantly reduces the   software tax imposed on database logging.
+For example,
+compared to the stock storage I/O path, \odes achieves 
+up to 2.1$\times$ throughput in serving an OLTP write-intensive workload
+with  OceanBase~\cite{DB:OceanBase:VLDB-2022} using preallocated log files. 
+It is also performant with MySQL whose binary log (binlog) is non-preallocated but gradually growing.
+Compared to BypassD lowering the software tax by  
+% utilizes 
+ specialized hardware,
+%IOMMU, 
+%to lower the software tax, 
+\odes yields much higher performance. % as well.
+
+\iffalse 
+The rest of this paper is organized as follows. In Section \ref{sec:background}, we present the background knowledge of database logging,
+software tax, and eBPF technique. We show our motivational study in Section \ref{sec:motivation}.
+We detail the design of \odes in Section \ref{sec:design}. We extensively evaluate \odes against SOTA algorithms
+in Section \ref{sec:eval}. We conclude the paper in Section \ref{sec:conclusion}.
+\fi
+
+\iffalse
+Motivated by this, we develop \odes.
+\odes enables a direct I/O path by using eBPF \cite{ebpf} and ioctl \cite{ioctlWik84:online}. In short, after obtaining the  logical block address (LBA), eBPF redirects a logging I/O request from the database to the device driver, in which \odes exploits ioctl interfaces 
+ and device-specific commands, such as {\tt nvme-flush} \cite{nvme-flush-command} for NVMe SSD, to deliver data persistently into target disk blocks.
+
+We prototype \odes in Linux kernel 6.6.5.
+We chose OceanBase for testing.
+For a write-intensive workload, \odes outperforms the status quo I/O path with up to 2.3 $\times$ throughput.
+\fi

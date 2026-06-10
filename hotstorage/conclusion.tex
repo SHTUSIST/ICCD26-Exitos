@@ -1,0 +1,25 @@
+\section{Conclusion}\label{sec:conclusion}
+
+
+In this paper, 
+%we study the performance cost of database logging writes. % widely found in databases and
+we demonstrate  that the heavy software tax charged on database logging  writes
+is amplified with fast storage devices and
+ can be relieved 
+in an all-in-software way. We accordingly develop \odes.
+%without hardware or kernel modifications. 
+%file system functions. 
+\odes % avoids any change to databases
+%by leveraging 
+utilizes eBPF to transparently redirect and transform  file operations into actual I/Os with the storage device,
+such that  it manages to bypass the most software layers.
+By exploiting the {\em move-extent} feature of Ext4,
+\odes minimizes the software tax for  %with stable file offsets and 
+both
+preallocated and non-preallocated log files.
+%and to handle writes for the latter it exploits the {\em move-extent} feature of Ext4 file system to resemble an on-the-fly preallocation effect.
+%from database to device.
+%to optimize logging's write and fdatasync I/Os.
+%minimizes application changes.
+ Experiments confirm that \odes largely improves the  performance of representative databases. %It also  surpasses both stock and SOTA storage I/O paths.
+ %by up to 2.3$\times$ over conventional storage stack.
