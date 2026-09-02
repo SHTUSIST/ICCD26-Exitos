@@ -1,0 +1,60 @@
+/* Five landmarks per write, so the interval that still mixes two candidate
+ * causes gets split.
+ *
+ * The earlier four-landmark version left kernel work and device time in one
+ * bucket: nvme_setup_cmd fires while the command is being built, and the next
+ * landmark was the interrupt handler reading the completion, so everything
+ * between them -- pinning the pages, building the data pointers, ringing the
+ * doorbell, the device's own work, and the core's wake-up out of an idle state
+ * -- landed in one number. nvme_queue_rq returns immediately after the doorbell
+ * is written, so a return probe on it separates the kernel's preparation from
+ * everything that happens after the device is told to go.
+ *
+ * nvme_submit_cmd and nvme_write_sq_db are inlined on this kernel and cannot be
+ * probed; nvme_queue_rq can.
+ *
+ * Queue depth is one and the workload single threaded, so the landmarks
+ * alternate and no correlation key is needed. Probes are confined to the
+ * measuring core because other people's disks are busy on this machine.
+ * Buckets are 100ns. */
+tracepoint:raw_syscalls:sys_enter
+/comm == "qdsplit" && (args->id == 18 || args->id == 426 || args->id == 16 || args->id == 74)/
+{ @t0 = nsecs; @live = 1; }
+
+tracepoint:nvme:nvme_setup_cmd
+/@live == 1 && args->opcode == 1 && str(args->disk) == "nvme1n1"/
+{ @t1 = nsecs; }
+
+/* Two entry points, not one: the block layer submits through the batched
+ * nvme_queue_rqs when a plug flushes, and passthru goes through the singular
+ * nvme_queue_rq. Probing only the singular form produced no samples at all for
+ * the filesystem arm, which is how this difference was found. Both return right
+ * after the doorbell is written. */
+fexit:nvme:nvme_queue_rq
+/@live == 1 && @t1 > @t0 && cpu == $1/
+{ @t2 = nsecs; @path[1] = count(); }
+
+fexit:nvme:nvme_queue_rqs
+/@live == 1 && @t1 > @t0 && cpu == $1/
+{ @t2 = nsecs; @path[2] = count(); }
+
+tracepoint:nvme:nvme_sq
+/@live == 1 && str(args->disk) == "nvme1n1" && @t2 > @t1/
+{ @t3 = nsecs; }
+
+tracepoint:nvme:nvme_complete_rq
+/@live == 1 && str(args->disk) == "nvme1n1"/
+{ @t4 = nsecs; }
+
+tracepoint:raw_syscalls:sys_exit
+/comm == "qdsplit" && @live == 1 && @t4 > @t3 && @t3 > @t2 && @t2 > @t1 && @t1 > @t0/
+{
+    @n = count();
+    @a_enter_to_setup    = lhist((@t1 - @t0) / 100 * 100, 0, 2000, 100);
+    @b1a_prepare_doorbell = lhist((@t2 - @t1) / 100 * 100, 0, 2000, 100);
+    @b1b_device_and_wake  = lhist((@t3 - @t2) / 100 * 100, 3000, 11000, 200);
+    @b2_deliver          = lhist((@t4 - @t3) / 100 * 100, 0, 2000, 100);
+    @c_return            = lhist((nsecs - @t4) / 100 * 100, 0, 3000, 100);
+    @live = 0;
+}
+END { clear(@t0); clear(@t1); clear(@t2); clear(@t3); clear(@t4); clear(@live); }

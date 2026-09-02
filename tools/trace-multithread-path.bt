@@ -1,0 +1,447 @@
+/* TRACE_DIAGNOSTIC_ONLY schema-1 template.
+ *
+ * One rendered invocation diagnoses one finite 8x128 QD1 uringpoll path pass.
+ * It publishes latency-path diagnostics only. Completion is bound to explicit
+ * io_uring -> blk_mq -> NVMe polling participation; IRQ and scheduler activity
+ * is deliberately absent from the matched-request contract.
+ */
+
+BEGIN
+{
+    printf("TRACE_BEGIN schema=1 marker=TRACE_DIAGNOSTIC_ONLY pass=path pass_id=@@PASS_ID@@ tgids=@@TGIDS_CSV@@ cpus=@@CPUS_CSV@@ syscalls=@@SYSCALLS_CSV@@ dev=@@DEV_MAJOR@@:@@DEV_MINOR@@ lba=@@LBA_START@@:@@LBA_END@@ hctxs=@@HCTXS_CSV@@ qids=@@QIDS_CSV@@\n");
+}
+
+tracepoint:raw_syscalls:sys_enter
+/(@@TGID_EXPR@@) && (@@CPU_EXPR@@) && (@@SYSCALL_EXPR@@)/
+{
+    @candidates = @candidates + 1;
+    if (has_key(@active, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @seq[tid] = @seq[tid] + 1;
+        @active[tid] = 1;
+        @active_syscall[tid] = args.id;
+        @active_seq[tid] = @seq[tid];
+        @enter_ns[tid] = nsecs;
+        @cpu_enter[tid] = cpu;
+    }
+}
+
+fentry:vmlinux:blk_mq_get_tag
+/has_key(@active, tid)/
+{
+    if (has_key(@tag_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @tag_call_ns[tid] = nsecs;
+        if (!has_key(@tag_enter_ns, tid)) { @tag_enter_ns[tid] = nsecs; }
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:vmlinux:blk_mq_get_tag
+/has_key(@active, tid) && has_key(@tag_call_ns, tid)/
+{
+    @tag_exit_ns[tid] = nsecs;
+    delete(@tag_call_ns, tid);
+    if (retval == 4294967295) { @order_errors = @order_errors + 1; }
+}
+
+fentry:vmlinux:blk_rq_map_user_iov
+/has_key(@active, tid)/
+{
+    $req = (uint64)args.rq;
+    $disk = args.rq->q->disk;
+    if ($req == 0 || $disk == 0) {
+        @dev_drift = @dev_drift + 1;
+    } else if ($disk->major != @@DEV_MAJOR@@ ||
+               $disk->first_minor != @@DEV_MINOR@@) {
+        @dev_drift = @dev_drift + 1;
+    } else if (has_key(@tid_req, tid) || has_key(@req_tid, $req)) {
+        @collisions = @collisions + 1;
+    } else {
+        @tid_req[tid] = $req;
+        @req_tid[$req] = tid;
+        @req_q[tid] = (uint64)args.rq->q;
+        @req_tgid[tid] = pid;
+        @req_seq[tid] = @active_seq[tid];
+        @map_enter_ns[tid] = nsecs;
+        @cpu_map[tid] = cpu;
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:vmlinux:blk_rq_map_user_iov
+/has_key(@tid_req, tid) && @tid_req[tid] == (uint64)args.rq/
+{
+    @map_exit_ns[tid] = nsecs;
+    if (retval != 0) { @order_errors = @order_errors + 1; }
+}
+
+fentry:vmlinux:bio_iov_iter_get_pages
+/has_key(@tid_req, tid)/
+{
+    if (has_key(@pages_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @pages_call_ns[tid] = nsecs;
+        if (!has_key(@pages_enter_ns, tid)) { @pages_enter_ns[tid] = nsecs; }
+    }
+}
+
+fexit:vmlinux:bio_iov_iter_get_pages
+/has_key(@tid_req, tid) && has_key(@pages_call_ns, tid)/
+{
+    @pages_exit_ns[tid] = nsecs;
+    delete(@pages_call_ns, tid);
+    if (retval < 0) { @order_errors = @order_errors + 1; }
+}
+
+fentry:nvme:nvme_queue_rq
+/has_key(@tid_req, tid)/
+{
+    $req = (uint64)args.bd->rq;
+    if ($req != @tid_req[tid] || !has_key(@req_tid, $req)) {
+        @order_errors = @order_errors + 1;
+    } else {
+        $hctx = args.hctx->queue_num;
+        $nvmeq = (struct nvme_queue *)args.hctx->driver_data;
+        $qid = $nvmeq->qid;
+        $iod = (struct nvme_iod *)(args.bd->rq + 1);
+        $cmd = $iod->req.cmd;
+        $cmd_flags = (uint64)args.bd->rq->cmd_flags;
+        @queue_enter_ns[tid] = nsecs;
+        @cpu_queue[tid] = cpu;
+        @hctx[tid] = $hctx;
+        @qid[tid] = $qid;
+        @bytes[tid] = args.bd->rq->__data_len;
+        @cmd_flags[tid] = $cmd_flags;
+        if (($cmd_flags & 4194304) != 0) {
+            @polled[tid] = 1;
+        } else {
+            @unpolled = @unpolled + 1;
+        }
+        if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+        if (!(@@HCTX_EXPR@@)) { @hctx_drift = @hctx_drift + 1; }
+        if (!(@@QID_EXPR@@)) { @qid_drift = @qid_drift + 1; }
+        if ($cmd == 0 || $cmd->rw.opcode != 1) {
+            @lba_drift = @lba_drift + 1;
+        } else {
+            $lba = (uint64)$cmd->rw.slba;
+            @lba[tid] = $lba;
+            if ($lba < @@LBA_START@@ || $lba > @@LBA_END@@) {
+                @lba_drift = @lba_drift + 1;
+            }
+        }
+        if (args.bd->rq->__data_len != @@BYTES@@) {
+            @block_shape_errors = @block_shape_errors + 1;
+        }
+    }
+}
+
+fexit:nvme:nvme_map_data
+/has_key(@req_tid, (uint64)args.req)/
+{
+    $owner = @req_tid[(uint64)args.req];
+    @dma_map_ns[$owner] = nsecs;
+    if (retval != 0) { @order_errors = @order_errors + 1; }
+}
+
+fentry:vmlinux:blk_mq_start_request
+/has_key(@req_tid, (uint64)args.rq)/
+{
+    $owner = @req_tid[(uint64)args.rq];
+    if (has_key(@start_ns, $owner)) {
+        @collisions = @collisions + 1;
+    } else {
+        @start_ns[$owner] = nsecs;
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+tracepoint:block:block_rq_issue
+/(@@TGID_EXPR@@) && (@@CPU_EXPR@@)/
+{
+    @block_issues = @block_issues + 1;
+    if (has_key(@tid_req, tid)) {
+        $req = @tid_req[tid];
+        if (has_key(@issue_ns, tid)) {
+            @collisions = @collisions + 1;
+        } else {
+            @issue_ns[tid] = nsecs;
+            @issue_req[tid] = $req;
+            @issues = @issues + 1;
+        }
+    } else {
+        @order_errors = @order_errors + 1;
+    }
+    if (args.dev != @@DEV_T@@ || args.bytes != @@BYTES@@) {
+        @block_shape_errors = @block_shape_errors + 1;
+    }
+}
+
+fexit:nvme:nvme_queue_rq
+/has_key(@tid_req, tid) && @tid_req[tid] == (uint64)args.bd->rq/
+{
+    @queue_exit_ns[tid] = nsecs;
+    if (retval != 0) { @order_errors = @order_errors + 1; }
+}
+
+fentry:vmlinux:io_iopoll_check
+/has_key(@tid_req, tid)/
+{
+    if (has_key(@iopoll_check_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @iopoll_check_call_ns[tid] = nsecs;
+        if (!has_key(@iopoll_check_enter_ns, tid)) {
+            @iopoll_check_enter_ns[tid] = nsecs;
+            @first_poll_ns[tid] = nsecs;
+            @iopoll_check_cpu[tid] = cpu;
+        }
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:vmlinux:io_iopoll_check
+/has_key(@tid_req, tid) && has_key(@iopoll_check_call_ns, tid)/
+{
+    @iopoll_check_duration_ns[tid] = @iopoll_check_duration_ns[tid] +
+                                     nsecs - @iopoll_check_call_ns[tid];
+    @iopoll_check_count[tid] = @iopoll_check_count[tid] + 1;
+    @iopoll_checks = @iopoll_checks + 1;
+    @iopoll_check_exit_ns[tid] = nsecs;
+    delete(@iopoll_check_call_ns, tid);
+    if (retval < 0) { @poll_drift = @poll_drift + 1; }
+}
+
+fentry:vmlinux:io_do_iopoll
+/has_key(@tid_req, tid)/
+{
+    if (has_key(@iopoll_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @iopoll_call_ns[tid] = nsecs;
+        if (!has_key(@iopoll_enter_ns, tid)) {
+            @iopoll_enter_ns[tid] = nsecs;
+            @iopoll_cpu[tid] = cpu;
+        }
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:vmlinux:io_do_iopoll
+/has_key(@tid_req, tid) && has_key(@iopoll_call_ns, tid)/
+{
+    @iopoll_duration_ns[tid] = @iopoll_duration_ns[tid] +
+                               nsecs - @iopoll_call_ns[tid];
+    @iopoll_count[tid] = @iopoll_count[tid] + 1;
+    @iopolls = @iopolls + 1;
+    @iopoll_exit_ns[tid] = nsecs;
+    delete(@iopoll_call_ns, tid);
+    if (retval < 0) { @poll_drift = @poll_drift + 1; }
+}
+
+fentry:vmlinux:blk_mq_poll
+/has_key(@tid_req, tid)/
+{
+    if ((uint64)args.q != @req_q[tid]) { @poll_drift = @poll_drift + 1; }
+    if (has_key(@blk_poll_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @blk_poll_call_ns[tid] = nsecs;
+        if (!has_key(@blk_poll_enter_ns, tid)) {
+            @blk_poll_enter_ns[tid] = nsecs;
+            @blk_poll_cpu[tid] = cpu;
+        }
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:vmlinux:blk_mq_poll
+/has_key(@tid_req, tid) && has_key(@blk_poll_call_ns, tid)/
+{
+    @blk_poll_duration_ns[tid] = @blk_poll_duration_ns[tid] +
+                                nsecs - @blk_poll_call_ns[tid];
+    @blk_poll_count[tid] = @blk_poll_count[tid] + 1;
+    @blk_polls = @blk_polls + 1;
+    @blk_poll_exit_ns[tid] = nsecs;
+    delete(@blk_poll_call_ns, tid);
+    if (retval < 0) { @poll_drift = @poll_drift + 1; }
+}
+
+fentry:nvme:nvme_poll
+/has_key(@tid_req, tid)/
+{
+    $hctx = args.hctx->queue_num;
+    $nvmeq = (struct nvme_queue *)args.hctx->driver_data;
+    $qid = $nvmeq->qid;
+    if ($hctx != @hctx[tid] || $qid != @qid[tid]) {
+        @poll_drift = @poll_drift + 1;
+    }
+    if (has_key(@nvme_poll_call_ns, tid)) {
+        @collisions = @collisions + 1;
+    } else {
+        @nvme_poll_call_ns[tid] = nsecs;
+        if (!has_key(@nvme_poll_enter_ns, tid)) {
+            @nvme_poll_enter_ns[tid] = nsecs;
+            @nvme_poll_cpu[tid] = cpu;
+        }
+    }
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+}
+
+fexit:nvme:nvme_poll
+/has_key(@tid_req, tid) && has_key(@nvme_poll_call_ns, tid)/
+{
+    @nvme_poll_duration_ns[tid] = @nvme_poll_duration_ns[tid] +
+                                 nsecs - @nvme_poll_call_ns[tid];
+    @nvme_poll_count[tid] = @nvme_poll_count[tid] + 1;
+    @nvme_polls = @nvme_polls + 1;
+    @nvme_poll_exit_ns[tid] = nsecs;
+    delete(@nvme_poll_call_ns, tid);
+    if (retval < 0) { @poll_drift = @poll_drift + 1; }
+}
+
+fentry:vmlinux:blk_mq_end_request
+/has_key(@req_tid, (uint64)args.rq)/
+{
+    $req = (uint64)args.rq;
+    $owner = @req_tid[$req];
+    if (has_key(@complete_ns, $owner)) {
+        @collisions = @collisions + 1;
+    } else {
+        @complete_ns[$owner] = nsecs;
+        @complete_req[$owner] = $req;
+        @cpu_complete[$owner] = cpu;
+        @completes = @completes + 1;
+        if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+        if (args.error != 0) { @block_errors = @block_errors + 1; }
+    }
+    delete(@req_tid, $req);
+}
+
+tracepoint:block:block_rq_complete
+/(args.dev == @@DEV_T@@) && (@@CPU_EXPR@@)/
+{
+    @block_completes = @block_completes + 1;
+    if (args.error != 0) { @block_errors = @block_errors + 1; }
+}
+
+tracepoint:raw_syscalls:sys_exit
+/has_key(@active, tid) && @active_syscall[tid] == args.id/
+{
+    if (!(@@CPU_EXPR@@)) { @cpu_drift = @cpu_drift + 1; }
+    if (has_key(@tid_req, tid)) {
+        $req = @tid_req[tid];
+        @exit_ns[tid] = nsecs;
+        if (has_key(@tag_enter_ns, tid) && has_key(@tag_exit_ns, tid) &&
+            has_key(@map_enter_ns, tid) && has_key(@pages_enter_ns, tid) &&
+            has_key(@pages_exit_ns, tid) && has_key(@map_exit_ns, tid) &&
+            has_key(@queue_enter_ns, tid) && has_key(@dma_map_ns, tid) &&
+            has_key(@start_ns, tid) && has_key(@issue_ns, tid) &&
+            has_key(@queue_exit_ns, tid) && has_key(@polled, tid) &&
+            has_key(@first_poll_ns, tid) &&
+            has_key(@iopoll_check_enter_ns, tid) &&
+            has_key(@iopoll_check_exit_ns, tid) &&
+            has_key(@iopoll_enter_ns, tid) && has_key(@iopoll_exit_ns, tid) &&
+            has_key(@blk_poll_enter_ns, tid) && has_key(@blk_poll_exit_ns, tid) &&
+            has_key(@nvme_poll_enter_ns, tid) && has_key(@nvme_poll_exit_ns, tid) &&
+            @iopoll_check_count[tid] > 0 && @iopoll_count[tid] > 0 &&
+            @blk_poll_count[tid] > 0 && @nvme_poll_count[tid] > 0 &&
+            has_key(@complete_ns, tid)) {
+            @emitted = @emitted + 1;
+            @matched = @matched + 1;
+            printf("TRACE_REQUEST pass_id=@@PASS_ID@@ tgid=%u tid=%u seq=%llu req=0x%llx issue_req=0x%llx complete_req=0x%llx dev=@@DEV_MAJOR@@:@@DEV_MINOR@@ lba=%llu bytes=%u hctx=%u qid=%u polled=%u cmd_flags=%llu cpu_enter=%u cpu_map=%u cpu_queue=%u cpu_complete=%u iopoll_check_cpu=%u iopoll_cpu=%u blk_poll_cpu=%u nvme_poll_cpu=%u enter_ns=%llu tag_enter_ns=%llu tag_exit_ns=%llu map_enter_ns=%llu pages_enter_ns=%llu pages_exit_ns=%llu map_exit_ns=%llu queue_enter_ns=%llu dma_map_ns=%llu start_ns=%llu issue_ns=%llu queue_exit_ns=%llu first_poll_ns=%llu iopoll_check_enter_ns=%llu iopoll_check_exit_ns=%llu iopoll_check_count=%llu iopoll_check_duration_ns=%llu iopoll_enter_ns=%llu iopoll_exit_ns=%llu iopoll_count=%llu iopoll_duration_ns=%llu blk_poll_enter_ns=%llu blk_poll_exit_ns=%llu blk_poll_count=%llu blk_poll_duration_ns=%llu nvme_poll_enter_ns=%llu nvme_poll_exit_ns=%llu nvme_poll_count=%llu nvme_poll_duration_ns=%llu complete_ns=%llu exit_ns=%llu\n",
+                   @req_tgid[tid], tid, @req_seq[tid], $req,
+                   @issue_req[tid], @complete_req[tid], @lba[tid],
+                   @bytes[tid], @hctx[tid], @qid[tid], @polled[tid],
+                   @cmd_flags[tid], @cpu_enter[tid], @cpu_map[tid],
+                   @cpu_queue[tid], @cpu_complete[tid],
+                   @iopoll_check_cpu[tid], @iopoll_cpu[tid],
+                   @blk_poll_cpu[tid], @nvme_poll_cpu[tid], @enter_ns[tid],
+                   @tag_enter_ns[tid], @tag_exit_ns[tid], @map_enter_ns[tid],
+                   @pages_enter_ns[tid], @pages_exit_ns[tid], @map_exit_ns[tid],
+                   @queue_enter_ns[tid], @dma_map_ns[tid], @start_ns[tid],
+                   @issue_ns[tid], @queue_exit_ns[tid], @first_poll_ns[tid],
+                   @iopoll_check_enter_ns[tid], @iopoll_check_exit_ns[tid],
+                   @iopoll_check_count[tid], @iopoll_check_duration_ns[tid],
+                   @iopoll_enter_ns[tid], @iopoll_exit_ns[tid],
+                   @iopoll_count[tid], @iopoll_duration_ns[tid],
+                   @blk_poll_enter_ns[tid], @blk_poll_exit_ns[tid],
+                   @blk_poll_count[tid], @blk_poll_duration_ns[tid],
+                   @nvme_poll_enter_ns[tid], @nvme_poll_exit_ns[tid],
+                   @nvme_poll_count[tid], @nvme_poll_duration_ns[tid],
+                   @complete_ns[tid], @exit_ns[tid]);
+        }
+
+        if (has_key(@req_tid, $req) && @req_tid[$req] == tid) {
+            delete(@req_tid, $req);
+        }
+        delete(@req_q, tid); delete(@req_tgid, tid); delete(@req_seq, tid);
+        delete(@map_enter_ns, tid); delete(@map_exit_ns, tid);
+        delete(@pages_enter_ns, tid); delete(@pages_exit_ns, tid);
+        delete(@queue_enter_ns, tid); delete(@queue_exit_ns, tid);
+        delete(@dma_map_ns, tid); delete(@start_ns, tid); delete(@issue_ns, tid);
+        delete(@issue_req, tid); delete(@complete_ns, tid);
+        delete(@complete_req, tid); delete(@exit_ns, tid);
+        delete(@cpu_map, tid); delete(@cpu_queue, tid); delete(@cpu_complete, tid);
+        delete(@hctx, tid); delete(@qid, tid); delete(@lba, tid);
+        delete(@bytes, tid); delete(@cmd_flags, tid); delete(@polled, tid);
+        delete(@first_poll_ns, tid);
+        delete(@iopoll_check_enter_ns, tid); delete(@iopoll_check_exit_ns, tid);
+        delete(@iopoll_check_count, tid); delete(@iopoll_check_duration_ns, tid);
+        delete(@iopoll_check_cpu, tid); delete(@iopoll_check_call_ns, tid);
+        delete(@iopoll_enter_ns, tid); delete(@iopoll_exit_ns, tid);
+        delete(@iopoll_count, tid); delete(@iopoll_duration_ns, tid);
+        delete(@iopoll_cpu, tid); delete(@iopoll_call_ns, tid);
+        delete(@blk_poll_enter_ns, tid); delete(@blk_poll_exit_ns, tid);
+        delete(@blk_poll_count, tid); delete(@blk_poll_duration_ns, tid);
+        delete(@blk_poll_cpu, tid); delete(@blk_poll_call_ns, tid);
+        delete(@nvme_poll_enter_ns, tid); delete(@nvme_poll_exit_ns, tid);
+        delete(@nvme_poll_count, tid); delete(@nvme_poll_duration_ns, tid);
+        delete(@nvme_poll_cpu, tid); delete(@nvme_poll_call_ns, tid);
+        delete(@tid_req, tid);
+    }
+    delete(@tag_call_ns, tid); delete(@tag_enter_ns, tid); delete(@tag_exit_ns, tid);
+    delete(@pages_call_ns, tid); delete(@active, tid); delete(@active_seq, tid);
+    delete(@active_syscall, tid); delete(@enter_ns, tid); delete(@cpu_enter, tid);
+}
+
+END
+{
+    $unmatched = @candidates - @matched;
+    printf("TRACE_END pass_id=@@PASS_ID@@ candidates=%llu emitted=%llu matched=%llu issues=%llu completes=%llu block_issues=%llu block_completes=%llu iopoll_checks=%llu iopolls=%llu blk_polls=%llu nvme_polls=%llu block_shape_errors=%llu block_errors=%llu collisions=%llu order_errors=%llu cpu_drift=%llu dev_drift=%llu lba_drift=%llu hctx_drift=%llu qid_drift=%llu poll_drift=%llu unpolled=%llu unmatched=%llu\n",
+           @candidates, @emitted, @matched, @issues, @completes,
+           @block_issues, @block_completes, @iopoll_checks, @iopolls,
+           @blk_polls, @nvme_polls, @block_shape_errors, @block_errors,
+           @collisions, @order_errors, @cpu_drift, @dev_drift, @lba_drift,
+           @hctx_drift, @qid_drift, @poll_drift, @unpolled, $unmatched);
+
+    clear(@seq); clear(@active); clear(@active_seq); clear(@active_syscall);
+    clear(@enter_ns); clear(@cpu_enter); clear(@tid_req); clear(@req_tid);
+    clear(@req_q); clear(@req_tgid); clear(@req_seq); clear(@tag_call_ns);
+    clear(@tag_enter_ns); clear(@tag_exit_ns); clear(@map_enter_ns);
+    clear(@map_exit_ns); clear(@pages_call_ns); clear(@pages_enter_ns);
+    clear(@pages_exit_ns); clear(@queue_enter_ns); clear(@queue_exit_ns);
+    clear(@dma_map_ns); clear(@start_ns); clear(@issue_ns); clear(@issue_req);
+    clear(@complete_ns); clear(@complete_req); clear(@exit_ns); clear(@cpu_map);
+    clear(@cpu_queue); clear(@cpu_complete); clear(@hctx); clear(@qid);
+    clear(@lba); clear(@bytes); clear(@cmd_flags); clear(@polled);
+    clear(@first_poll_ns); clear(@iopoll_check_call_ns);
+    clear(@iopoll_check_enter_ns); clear(@iopoll_check_exit_ns);
+    clear(@iopoll_check_count); clear(@iopoll_check_duration_ns);
+    clear(@iopoll_check_cpu); clear(@iopoll_call_ns); clear(@iopoll_enter_ns);
+    clear(@iopoll_exit_ns); clear(@iopoll_count); clear(@iopoll_duration_ns);
+    clear(@iopoll_cpu); clear(@blk_poll_call_ns); clear(@blk_poll_enter_ns);
+    clear(@blk_poll_exit_ns); clear(@blk_poll_count); clear(@blk_poll_duration_ns);
+    clear(@blk_poll_cpu); clear(@nvme_poll_call_ns); clear(@nvme_poll_enter_ns);
+    clear(@nvme_poll_exit_ns); clear(@nvme_poll_count);
+    clear(@nvme_poll_duration_ns); clear(@nvme_poll_cpu); clear(@candidates);
+    clear(@emitted); clear(@matched); clear(@issues); clear(@completes);
+    clear(@block_issues); clear(@block_completes); clear(@iopoll_checks);
+    clear(@iopolls); clear(@blk_polls); clear(@nvme_polls);
+    clear(@block_shape_errors); clear(@block_errors); clear(@collisions);
+    clear(@order_errors); clear(@cpu_drift); clear(@dev_drift); clear(@lba_drift);
+    clear(@hctx_drift); clear(@qid_drift); clear(@poll_drift); clear(@unpolled);
+}

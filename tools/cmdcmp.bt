@@ -1,0 +1,109 @@
+/* Trace the final NVMe command shape for one numeric qdsplit TGID.
+ *
+ * nvme_prep_rq returns after nvme_setup_cmd() and nvme_map_data(), so the
+ * command data-pointer union and nvme_iod descriptor accounting are final.
+ * blk_mq_rq_to_pdu(req) is (req + 1); struct nvme_request is the first member
+ * of struct nvme_iod and its cmd pointer names the completed command image.
+ *
+ * PSDT is a union discriminator.  The PRP branch never reads the SGL member;
+ * the SGL branch never reads PRP1/PRP2.  Linux encodes the SGL descriptor type
+ * in the high nibble: 0x00 is an inline data-block descriptor, 0x20 a segment
+ * descriptor, and 0x30 a last-segment descriptor pointing at an external list.
+ *
+ * Invocation (the runner supplies three numeric positional arguments):
+ *     bpftrace tools/cmdcmp.bt TARGET_TGID DISK_MAJOR DISK_FIRST_MINOR
+ */
+
+BEGIN
+{
+    /* BEGIN runs before bpftrace finishes attaching ordinary probes.  The
+     * runner combines this PID marker with v0.25's post-attach "Attached 3
+     * probes" status and also requires exactly ITERS command events. */
+    @events = 0;
+    printf("TRACE_BEGIN target_pid=%d\n", $1);
+}
+
+fexit:nvme:nvme_prep_rq
+/pid == $1 && args.req->q->disk->major == $2 &&
+ args.req->q->disk->first_minor == $3/
+{
+    $req = args.req;
+    $iod = (struct nvme_iod *)($req + 1);
+    $c = $iod->req.cmd;
+    $dev_major = $req->q->disk->major;
+    $dev_first_minor = $req->q->disk->first_minor;
+    if (retval == 0 && $c != 0 && $c->rw.opcode == 1) {
+        $psdt = ($c->rw.flags >> 6) & 3;
+        $usercmd = ($iod->req.flags & 0x2) != 0;
+        if ($psdt == 0) {
+            /* Only this branch interprets dptr as PRP. */
+            $prp1 = $c->rw.dptr.prp1;
+            $prp2 = $c->rw.dptr.prp2;
+            printf("TRACE_EVENT pid=%d dev_major=%u dev_first_minor=%u format=PRP psdt=%d flags=0x%x control=0x%x dsmgmt=0x%x nlb0=%u nr_phys_segments=%u iod_req_flags=0x%x usercmd=%u iod_flags=0x%x iod_nr_descriptors=%u iod_total_len=%u prp1=0x%llx prp2=0x%llx prp2_present=%u prp_adjacent_4k=%u prp2_low12=0x%x\n",
+                   pid, $dev_major, $dev_first_minor,
+                   $psdt, $c->rw.flags, $c->rw.control,
+                   $c->rw.dsmgmt, $c->rw.length,
+                   $req->nr_phys_segments, $iod->req.flags, $usercmd, $iod->flags,
+                   $iod->nr_descriptors, $iod->total_len,
+                   $prp1, $prp2, $prp2 != 0,
+                   $prp2 != 0 && $prp2 - $prp1 == 4096,
+                   $prp2 & 0xfff);
+            @prp_commands[$dev_major, $dev_first_minor,
+                          $req->nr_phys_segments, $iod->nr_descriptors,
+                          $prp2 != 0] = count();
+        } else {
+            /* Only this branch interprets dptr as one SGL descriptor. */
+            $sgl_type = $c->rw.dptr.sgl.type;
+            $sgl_length = $c->rw.dptr.sgl.length;
+            $sgl_addr = $c->rw.dptr.sgl.addr;
+            if (($sgl_type & 0xf0) == 0x00) {
+                printf("TRACE_EVENT pid=%d dev_major=%u dev_first_minor=%u format=SGL sgl_class=inline_data psdt=%d flags=0x%x control=0x%x dsmgmt=0x%x nlb0=%u nr_phys_segments=%u iod_req_flags=0x%x usercmd=%u iod_flags=0x%x iod_nr_descriptors=%u iod_total_len=%u sgl_type=0x%x sgl_length=%u sgl_addr=0x%llx sgl_addr_low12=0x%x\n",
+                       pid, $dev_major, $dev_first_minor,
+                       $psdt, $c->rw.flags, $c->rw.control,
+                       $c->rw.dsmgmt, $c->rw.length,
+                       $req->nr_phys_segments, $iod->req.flags, $usercmd, $iod->flags,
+                       $iod->nr_descriptors, $iod->total_len,
+                       $sgl_type, $sgl_length, $sgl_addr,
+                       $sgl_addr & 0xfff);
+                @sgl_inline_data[$dev_major, $dev_first_minor,
+                                 $req->nr_phys_segments,
+                                 $iod->nr_descriptors,
+                                 $sgl_length] = count();
+            } else if (($sgl_type & 0xf0) == 0x30) {
+                printf("TRACE_EVENT pid=%d dev_major=%u dev_first_minor=%u format=SGL sgl_class=external_last_segment psdt=%d flags=0x%x control=0x%x dsmgmt=0x%x nlb0=%u nr_phys_segments=%u iod_req_flags=0x%x usercmd=%u iod_flags=0x%x iod_nr_descriptors=%u iod_total_len=%u sgl_type=0x%x sgl_length=%u sgl_addr=0x%llx sgl_addr_low12=0x%x\n",
+                       pid, $dev_major, $dev_first_minor,
+                       $psdt, $c->rw.flags, $c->rw.control,
+                       $c->rw.dsmgmt, $c->rw.length,
+                       $req->nr_phys_segments, $iod->req.flags, $usercmd, $iod->flags,
+                       $iod->nr_descriptors, $iod->total_len,
+                       $sgl_type, $sgl_length, $sgl_addr,
+                       $sgl_addr & 0xfff);
+                @sgl_external_last_segment[$dev_major, $dev_first_minor,
+                                           $req->nr_phys_segments,
+                                           $iod->nr_descriptors,
+                                           $sgl_length] = count();
+            } else {
+                printf("TRACE_EVENT pid=%d dev_major=%u dev_first_minor=%u format=SGL sgl_class=external_or_unknown psdt=%d flags=0x%x control=0x%x dsmgmt=0x%x nlb0=%u nr_phys_segments=%u iod_req_flags=0x%x usercmd=%u iod_flags=0x%x iod_nr_descriptors=%u iod_total_len=%u sgl_type=0x%x sgl_length=%u sgl_addr=0x%llx sgl_addr_low12=0x%x\n",
+                       pid, $dev_major, $dev_first_minor,
+                       $psdt, $c->rw.flags, $c->rw.control,
+                       $c->rw.dsmgmt, $c->rw.length,
+                       $req->nr_phys_segments, $iod->req.flags, $usercmd, $iod->flags,
+                       $iod->nr_descriptors, $iod->total_len,
+                       $sgl_type, $sgl_length, $sgl_addr,
+                       $sgl_addr & 0xfff);
+                @sgl_external_or_unknown[$dev_major, $dev_first_minor,
+                                         $sgl_type,
+                                         $req->nr_phys_segments,
+                                         $iod->nr_descriptors,
+                                         $sgl_length] = count();
+            }
+        }
+        @events = @events + 1;
+    }
+}
+
+END
+{
+    printf("TRACE_END target_pid=%d events=%d\n", $1, @events);
+    clear(@events);
+}

@@ -1,0 +1,29 @@
+# Compiled objects and libraries.
+*.o
+*.a
+*.so
+__pycache__/
+*.pyc
+
+# Compiled test, helper, benchmark and tool binaries carry no filename
+# extension, so each build directory ignores everything and re-admits its
+# tracked sources by extension.
+tests/unit/*
+!tests/unit/*.c
+!tests/unit/*.h
+!tests/unit/*.sh
+!tests/unit/*.py
+tests/integ/*
+!tests/integ/*.c
+!tests/integ/*.sh
+tests/device/*
+!tests/device/*.c
+attribution/*
+!attribution/*.c
+!attribution/*.sh
+tools/cstate-keeper
+tests/uring-passthrough-qd/qd_bench
+
+# Result directories written by the example runners, at any depth.
+**/results/*
+!**/results/README.md
