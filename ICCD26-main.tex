@@ -1,0 +1,113 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%Template version as of 6/27/2024
+
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+
+%\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\renewcommand{\citepunct}{,\penalty\citepunctpenalty\,}
+\usepackage{epsfig,comment,xspace}
+\usepackage{xurl}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{bbding,pifont}
+\usepackage{amsmath,siunitx}
+\usepackage{amsfonts,newtxmath}
+\usepackage{graphicx,caption,float}
+\usepackage{calc,flushend}
+\usepackage{algorithmic,algorithm}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{yfonts}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{circledsteps}
+\usepackage{fancybox}
+\usepackage{microtype}
+\usepackage{stfloats}
+\usepackage{todonotes}
+\usepackage{makecell}   
+\usepackage{booktabs,soul}  
+\usepackage{xcolor}     
+\usepackage{balance}
+\usepackage{adjustbox}    % for optional width-
+
+% updated with editorial comments 8/9/2021
+
+\newcommand{\odes}{\'Exitos\xspace}
+
+\pagenumbering{arabic}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+%\title{\odes: Building a Shortcut to Exempt Runtime Software Tax imposed on File Writes}
+\title{\odes: Reducing the Software Tax for\\ Database Logging through a Shortcut I/O Path}
+
+\author{\IEEEauthorblockN{Yanpeng Hu, Li Zhu, Yunxin Yang, and Chundong Wang%s\thanks{C. Wang is the corresponding author (cd\_wang@outlook.com).}
+	}
+	\IEEEauthorblockA{\textit{School of Information Science and Technology} \\
+		\textit{ShanghaiTech University, Shanghai, China}\\
+		\{huyp, zhuli2023, yangyx12023, wangc\}@shanghaitech.edu.cn}
+
+}
+
+\maketitle
+ 
+
+
+%\input{abs}
+\input{hotstorage/abs}
+
+\begin{IEEEkeywords}
+	Database Logging, Software Tax %{\tt fsync}, 
+\end{IEEEkeywords}
+
+\iffalse
+\begin{comment}
+ \input{intro2}
+\input{bg2}
+\input{mot2}
+\input{design2}
+\input{eval2}
+\input{conclusion} 
+\end{comment}
+\else
+ \input{hotstorage/intro}
+\input{hotstorage/bg}
+\input{mot2}
+%\input{hotstorage/mot}
+%\input{hotstorage/design}
+\input{design2}
+\input{eval2}
+%\input{hotstorage/eval}
+% \input{related}
+\input{hotstorage/conclusion}
+\fi
+
+\section*{Acknowledgment}
+
+
+%sWe express our gratitude to the anonymous reviewers and TPC of ICCD 2026 for their constructive comments. 
+This work was supported by National Key R\&D Program of China No. 2022YFB4401700 and 
+ShanghaiTech Startup Funding. Chundong Wang is the corresponding author.
+% (cd\_wang@outlook.com).
+
+\bibliographystyle{IEEEtran}
+\bibliography{ioctl4}
+
+
+
+\end{document}

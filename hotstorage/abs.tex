@@ -1,0 +1,25 @@
+\begin{abstract}
+%Logging is essential for databases, 
+%Databases widely adopt logging. 
+Logging is a useful and critical technique   widely used by databases.
+Database logging relies on file write and fsync, which have to
+%File write and fsync for logging	
+traverse multiple software layers and pay % impose
+  heavy runtime tax %for
+  to %when 
+  the underlying file system like Ext4 % is 
+  locating target data blocks and journaling modified file metadata. %Our quantitative study shows that,
+%In this paper,
+As the
+  preallocation of storage space for a log file makes a stable file structure and avoids
+ % , which avoids space reallocations and 
+%file 
+metadata changes, we develop \odes, which reorganizes offset-to-block mappings per preallocated log file for quick lookup  and creates a direct shortcut    from database to device, bypassing almost all software layers. 
+  For non-preallocated log files, \odes exploits Ext4’s move-extent feature to resemble a preallocation-like effect. Evaluation confirms
+  % results confirm 
+  that \odes boosts throughput by 2.1$\times$ and 1.6$\times$ for OceanBase and MySQL, respectively.
+%significantly boosts the performances of OceanBase and MySQL.
+\end{abstract}
+
+%Researchers have tried multiple ways to mitigate the substantial cost for database logging
+%writes. Whereas, it is still expensive, because I/Os traverse multiple software layers that charge a significant runtime tax.

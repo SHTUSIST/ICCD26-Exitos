@@ -1,0 +1,30 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+*.lof
+*.lot
+*.spl
+*.nav
+*.snm
+*.vrb
+*.run.xml
+*.bcf
+build/
+build.log
+
+# 主 agent 的工作文档(调查、清单、实现记录)——不进论文仓库,仅本地留存。
+# 08/09 由作者提交跟踪,不在此列。
+/01-论文现状与下一步.md
+/02-未决事项清单.md
+/03-实现路线技术文档.md
+/04-fable-回退调查.md
+/05-复现实现计划.md
+/06-donor机制与性能实测分析.md
+/07-实测判定-论文前提是否成立.md
+/REVIEW_CN.md

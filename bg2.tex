@@ -1,0 +1,178 @@
+\section{Background}\label{sec:background}
+
+\begin{comment}
+	{\bf Write-ahead logging in databases.} Write-ahead logging (WAL) is a fundamental technique that databases rely on for consistency and durability~\cite{mohan1992aries,gray1993transaction}.
+	Databases persistently write key-value pairs or operations to log files for recovery in case of power outage or software panic.
+	As log files are rarely read except during recovery, they typically operate in direct I/O mode, bypassing the OS page cache.
+	Database systems employ two primary strategies for log file management: preallocation and dynamic growth.
+	Rising-star databases such as OceanBase initialize log files by preallocating tens of gigabytes by default~\cite{DB:OceanBase:VLDB-2022}.
+	Similarly, mature database engines like SQLite can be tuned to preallocate log files~\cite{lee2015waldio}.
+	However, many production systems also use dynamically growing log files, where blocks are allocated on-demand as the log expands, presenting unique performance challenges.
+\end{comment}
+
+%{\bf The I/O path anatomy: where software tax accumulates.}
+\textbf{File I/O Path.}
+A file operation that an application issues %, such as a file write or fdatasync,
+%When an application issues a file operation, the I/O request 
+traverses a complex software stack composed of multiple layers 
+before reaching the storage device.
+The top  layer is  {\em syscall interface}, at which syscalls such as file write and fdatasync 
+transition to the kernel space with parameter validation.
+The {\em VFS} then performs inode lookup, interacts with the OS page cache, 
+manages file position tracking, and so on~\cite{love2010linux}.
+%The file operation is next passed to 
+VFS passes the file operation to
+a {\em specific file system}, such as the prevalent Ext4 studied in this paper.
+Ext4
+maps   in-file offsets to device block numbers and   composes block I/O (bio) requests.
+For a write issued to unallocated space, Ext4 allocates   space on demand
+and updates the per-file mappings. These metadata changes will trigger
+{\em journaling} for crash consistency, by committing modified metadata
+%are committed 
+to a dedicated {\em journal}
+before in-place update~\cite{mathur2007ext4,fsync:FastCommit:ATC-2024,fsync:iJournaling:ATC-2017}.
+The {\em bio layer} and {\em I/O scheduler}  manage, merge, and schedule bio requests where necessary%
+%bio requests, merge requests , and schedule 
+%requests
+~\cite{love2010linux}.
+Finally, the {\em device driver} translates bio requests to device-specific commands. It collects completion or fail signals from the device and
+notifies upper-level  layers.
+
+ 
+
+\textbf{Software Tax.}	
+Software layers impose heavy tax on the critical path of serving a file write.
+%When traversing these  layers, 	software overhead will occur on the critical path.
+In particular, locating a target block for a write involves a lookup
+in the file's extent tree, a structure by which Ext4 stores the  mappings per file. 
+%The block allocation triggers %, which
+The journaling caused by allocating blocks and updating the per-file mappings,
+ entails severe write amplification with multiple writes performed to  the journal and file \cite{lee2015waldio,fsync:iJournaling:ATC-2017,fsync:FastCommit:ATC-2024}.
+%checking the per-file mappings involves a lookup in an extent tree
+ 
+%In the device, OS kernel, and applications, researchers have incorporated a few tactics to accelerate file writes.
+Researchers have considered accelerating %incorporated a few tactics to accelerate
+ file writes in the device, OS, and applications.
+Firstly, many enterprise-level SSDs are equipped with the supercapacitor-based  PLP,
+% technique
+% that enables a temporary, 
+which flushes 
+%, thereby enabling
+%PLP allows 
+%the flush of
+%PLP allows the SSD 
+data %or metadata 
+staying in the SSD's internal cache to be durable in case of power outage \cite{PLP:samsung}.
+%in case of power outage, thereby dramatically
+Calling fsync to write data into one such SSD can return promptly 
+once the data arrives at the cache.  PLP hence largely shortens the response time of fsync%
+% thereby largely reducing the response time of fsync%
+%This largely reduces the response time of fsync/fdatasync
+~\cite{fsync:barrierFS:FAST-2018}.
+Secondly, in the OS kernel,
+% researchers have explored at multiple aspects %dimensions 
+%in the OS. For example, 
+instead of using
+the stricter {\em mandatory access control} (MAC) to check permission   % to check the access permission 
+at every file operation,
+the OS mainly applies the  {\em discretionary access control} (DAC) only at opening a file. 
+%For buffered writes, Ext4 provides %file systems like Ext4 use 
+% the delayed block allocation option. % for device blocks.
+%VFS and file systems maintain dentry (directory entry) cache and inode cache for acceleration.
+As for persistent stores,
+the OS provides  fatasync to substitute fsync if there is no metadata change to a file.
+% In case of no metadata change,  
+%Researchers  have optimized the journaling mechanism   also
+The journaling mechanism has been optimized also \cite{fsync:RFLUSH:FAST-2018,fsync:rethink:OSDI-2006,FS:Z-Journal:ATC-2021,fsync:OptFS:SOSP-2013,fsync:TxFS:ATC-2018,fsync:FastCommit:ATC-2024}. 
+Thirdly,  developers have practical methods in their applications.
+To minimize the cost of on-demand space allocations and 
+metadata journaling,   many databases
+preallocate all or partial files in advance \cite{DB:OceanBase:VLDB-2022,MySQL:fallocate,SQL-server:fallocate}.  %, such as OceanBase.
+Preallocation
+ also facilitates the use of DAC for permission checks   and
+fdatasync for durable stores.
+%the caches of inodes and directory entries (dentries)
+
+%complete critical operations 
+%in case of power outage.
+
+
+
+
+\begin{comment}
+	
+	
+	\textit{1. System call interface:} The initial entry point where user-space transitions to kernel-space through syscalls like write(), read(), or fsync(). This involves context switching overhead and parameter validation.
+	
+	\textit{2. Virtual File System (VFS):} The abstraction layer that provides a uniform interface for different file systems. VFS performs inode lookups, maintains file descriptors, and manages file position tracking~\cite{love2010linux}.
+	
+	\textit{3. File system layer (e.g., Ext4):} This layer performs the critical task of translating logical file offsets to physical disk blocks.
+	For Ext4, this involves navigating extent trees—B+ tree structures that map file regions to contiguous disk blocks~\cite{mathur2007ext4}.
+	Dynamic block allocation adds substantial overhead: allocating new blocks requires searching free space bitmaps, updating block groups, and potentially triggering expensive journal commits~\cite{prabhakaran2005analysis}.
+	
+	\textit{4. Journaling subsystem:} Modern file systems like Ext4 use journaling (JBD2) to ensure consistency~\cite{tweedie1998journaling}.
+	Each metadata modification—including block allocations for growing files—must be logged to the journal before the actual update.
+	This creates a write amplification effect: a single logical write can trigger multiple physical writes to both the journal and the file data.
+	
+	\textit{5. Block layer and I/O scheduler:} The generic block layer manages I/O requests, performs request merging, and applies scheduling policies~\cite{love2010linux}.
+	While beneficial for throughput, these optimizations add latency for latency-sensitive logging operations.
+	
+	\textit{6. Device driver:} Finally, the device driver translates block I/O requests into device-specific commands (e.g., NVMe commands) and manages completion interrupts.
+	
+	
+	{\bf Permission checks: DAC vs. MAC.}
+	Linux implements two distinct access control models that affect I/O performance differently~\cite{smalley2001implementing,wright2002linux}:
+	
+	\textit{Discretionary Access Control (DAC):} The traditional Unix permission model checks file access rights (read/write/execute) based on user/group/other permissions.
+	Critically, DAC performs these checks only once when a file is opened, storing the validated permissions in the file descriptor.
+	Subsequent I/O operations through that descriptor bypass permission checks entirely.
+	
+	\textit{Mandatory Access Control (MAC):} Security frameworks like SELinux and AppArmor implement MAC policies that can enforce fine-grained access controls~\cite{loscocco2001integrating}.
+	Unlike DAC, MAC systems may perform access checks on every I/O operation, not just at file open time.
+	This recurring validation ensures stronger security but introduces measurable overhead—each write() or read() syscall triggers a policy evaluation that can involve complex rule matching.
+\end{comment}
+
+
+
+
+% huyp: have been mentioned in the intro
+\begin{comment}
+	Emerging memory technologies, like Intel 3D XPoint \cite{intel3dxpoint} and low-latency NAND flash \cite{samsungznand2024}, have paved the way for NVMe SSDs that offer $\mu$s-level latency and millions of I/O operations per second (IOPS).
+	With increasingly faster devices, the tax imposed by software layers turns to rise in the overall time cost per I/O request. 
+	
+	{\bf SOTA solutions.}
+	Researchers have studied the reduction or even avoidance of software tax.
+	State-of-the-art (SOTA) solutions include NVMeDirect \cite{SSD:NVMeDirect:HotStorage-2016}, SPDK \cite{SSD:SPDK:CloudCom-2017}, Moneta-D \cite{SSD:Moneta-D:ASPLOS-2012}, BypassD \cite{SSD:BypassD:ASPLOS-2024}, etc.
+	Using the interfaces provided by NVMeDirect or SPDK, developers can fully bypass the OS kernel. Though, they must reprogram applications and manage data on their own.
+	Moneta-D and BypassD incorporate customized hardware for a part of management purposes. In particular, Moneta-D mainly makes a specialized storage device perform permission checks.
+	BypassD extends the IOMMU to map in-file offsets to disk blocks and check block-level access permissions.
+	Both of them also need to change the file system in the OS kernel.
+\end{comment}
+
+
+
+\textbf{eBPF.}
+The extended Berkeley Packet Filters (eBPF) \cite{ebpf} was initially developed to filter packets in networks. It now enables advanced capabilities like performance monitoring, security enforcement, and I/O optimization by allowing custom code to run efficiently in the OS kernel.
+A notable feature of eBPF is its ability to transparently alter the execution path of a kernel function and run alternate codes that have been verified \cite{ebpf,280870,DBLP:conf/osdi/ZhengY0HL0Q25}.
+This makes a seamless transition to a new execution path for a particular syscall, without requiring any change to applications.
+eBPF also supports a memory buffer shared at the boundary of kernel and user spaces.
+We will exploit these features to exempt the heavy runtime tax charged by the software layers on
+file writes.
+% on logging I/Os.
+
+
+\textbf{ioctl.} The ioctl ({\em I/O control}) enables  user-space applications
+to directly interact with a device \cite{ioctlWik84:online}. If the numbers of device blocks
+in which a file's data is stored are known, 
+a program can leverage the ioctl interface to directly write data into these blocks
+and   flush the device's internal cache where necessary\cite{6702624}.
+Though, the ioctl interfaces must be used with particular care. For example, 
+an incorrect block number may mislead an overwrite to 
+some file's inode or the
+file system's metadata (e.g., superblock), corrupting 
+a file or even the entire system.
+The aforementioned preallocation helps to obtain the numbers of   
+blocks  belonging to a file.
+%Given file data stored in some block numbers,
+
+%TODO: 

@@ -1,0 +1,1465 @@
+@misc{Improvey30:online,
+	author = {Jannik Smidt},
+	title = {Improve your storage I/O performance today | Computer Science Blog @ HdM Stuttgart},
+	url = "https://blog.mi.hdm-stuttgart.de/index.php/2022/04/01/improve-your-storage-i-o-performance-today/",
+	month = {4},
+	year = {2022},
+	note = "[Online; accessed 2025-03-14]"
+}
+
+ 
+
+
+
+@INPROCEEDINGS{10630969,
+	
+	author={Li, Yuanhao and Wu, Tianyuan and Li, Guancheng and Song, Yanjie and Yin, Shu},
+	
+	booktitle={2024 IEEE 44th International Conference on Distributed Computing Systems (ICDCS)}, 
+	
+	title={Portus: Efficient {DNN} Checkpointing to Persistent Memory with Zero-Copy}, 
+	
+	year={2024},
+	
+	volume={},
+	
+	number={},
+	
+	pages={59-70},
+	
+	keywords={Checkpointing;Training;Large language models;Computational modeling;Prototypes;Graphics processing units;Production;Checkpointing;Persistence Memory;RDMA;Systems for AI},
+	
+	doi={10.1109/ICDCS60910.2024.00015}}
+
+@inproceedings {298623,
+	author = {Zhiyue Li and Guangyan Zhang},
+	title = {{StreamCache}: Revisiting Page Cache for File Scanning on Fast Storage Devices},
+	booktitle = {2024 USENIX Annual Technical Conference (USENIX ATC 24)},
+	year = {2024},
+	isbn = {978-1-939133-41-0},
+	address = {Santa Clara, CA},
+	pages = {1119--1134},
+	url = {https://www.usenix.org/conference/atc24/presentation/li-zhiyue},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings{10.1145/2493123.2462908,
+	author = {Rajachandrasekar, Raghunath and Moody, Adam and Mohror, Kathryn and Panda, Dhabaleswar K. (DK)},
+	title = {A {1 PB/s} file system to checkpoint three million {MPI} tasks},
+	year = {2013},
+	isbn = {9781450319102},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/2493123.2462908},
+	doi = {10.1145/2493123.2462908},
+	abstract = {With the massive scale of high-performance computing systems, long-running scientific parallel applications periodically save the state of their execution to files called checkpoints to recover from system failures. Checkpoints are stored on external parallel file systems, but limited bandwidth makes this a time-consuming operation. Multilevel checkpointing systems, like the Scalable Checkpoint/Restart (SCR) library, alleviate this bottleneck by caching checkpoints in storage located close to the compute nodes. However, most large scale systems do not provide file storage on compute nodes, preventing the use of SCR.We have implemented a novel user-space file system that stores data in main memory and transparently spills over to other storage, like local flash memory or the parallel file system, as needed. This technique extends the reach of libraries like SCR to systems where they otherwise could not be used. Furthermore, we expose file contents for Remote Direct Memory Access, allowing external tools to copy checkpoints to the parallel file system in the background with reduced CPU interruption. Our file system scales linearly with node count and delivers a 1~PB/s throughput at three million MPI processes, which is 20x faster than the system RAM disk and 1000x faster than the parallel file system.},
+	booktitle = {Proceedings of the 22nd International Symposium on High-Performance Parallel and Distributed Computing},
+	pages = {143–154},
+	numpages = {12},
+	keywords = {persistent- memory, multilevel checkpointing, file systems, fault-tolerance, SSD, RDMA, HPC},
+	location = {New York, New York, USA},
+	series = {HPDC '13}
+}
+
+@inproceedings {264850,
+	author = {Jayashree Mohan and Amar Phanishayee and Vijay Chidambaram},
+	title = {{CheckFreq}: Frequent, {Fine-Grained} {DNN} Checkpointing},
+	booktitle = {19th USENIX Conference on File and Storage Technologies (FAST 21)},
+	year = {2021},
+	isbn = {978-1-939133-20-5},
+	pages = {203--216},
+	url = {https://www.usenix.org/conference/fast21/presentation/mohan},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@misc{rotatelogs,
+	title = {rotatelogs - Piped logging program to rotate Apache logs},
+	author = {{Apache Software Foundation}},
+	year = {2024},
+	url = {https://httpd.apache.org/docs/current/programs/rotatelogs.html}
+}
+
+@book{mysql2013mysql,
+	title={MySQL},
+	author={{Oracle Corporation}},
+	year={2025},
+	url = {https://www.mysql.com/},
+	publisher={Oracle Corporation},
+}
+
+@misc{mysql2024innodb,
+	title={The {InnoDB} Storage Engine},
+	author={{Oracle Corporation}},
+	year={2024},
+	url={https://dev.mysql.com/doc/refman/8.0/en/innodb-storage-engine.html},
+}
+
+@misc{spark-streaming,
+	title = {Spark Streaming Programming Guide},
+	author = {{Apache Spark}},
+	year = {2024},
+	url = {https://spark.apache.org/docs/latest/streaming-programming-guide.html}
+}
+
+@misc{wiredtiger,
+	title = {WireTiger: Logging},
+	author = {{MongoDB, Inc.}},
+	month = Nov,
+	year = {2024},
+	url = {https://source.wiredtiger.com/develop/arch-logging.html},
+}
+
+
+@misc{db2,
+	title = {DB2 for {Linux}, {UNIX} and {Windows}: Performance variables},
+	author = {IBM},
+	month = Oct,
+	year = {2024},
+	url = {https://www.ibm.com/docs/en/db2/12.1.0?topic=variables-performance},
+}
+
+
+@misc{kafka-log,
+	title = {Kafka Log Management},
+	author = {{Apache Kafka}},
+	year = {2024},
+	url = {https://kafka.apache.org/documentation/#log}
+}
+@ARTICLE{FS:Linux-DAC:TDSC-2024,
+	author={Varshith, H. O Sai and Sural, Shamik and Vaidya, Jaideep and Atluri, Vijayalakshmi},
+	journal={IEEE Transactions on Dependable and Secure Computing}, 
+	title={Efficiently Supporting Attribute-Based Access Control in {Linux}}, 
+	year={2024},
+	volume={21},
+	number={4},
+	pages={2012-2026},
+	keywords={Linux;Access control;Kernel;File systems;Data structures;Authentication;Sockets;Access control;ABAC;linux security module;file system security;access resolution},
+	doi={10.1109/TDSC.2023.3299429}}
+
+@inproceedings{FS:DAC-MAC:SECMAC-2009,
+	author = {Mao, Ziqing and Li, Ninghui and Chen, Hong and Jiang, Xuxian},
+	title = {Trojan horse resistant discretionary access control},
+	year = {2009},
+	isbn = {9781605585376},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/1542207.1542244},
+	doi = {10.1145/1542207.1542244},
+	abstract = {Modern operating systems primarily use Discretionary Access Control (DAC) to protect files and other operating system resources. DAC mechanisms are more user-friendly than Mandatory Access Control (MAC) systems, but are vulnerable to attacks that use trojan horses or exploit buggy software. We show that it is possible to have the best of both worlds: DAC's easy-to-use discretionary policy and MAC's defense against trojan horses and buggy programs. This is made possible by a key new insight that DAC has weaknesses not because it uses the discretionary principle, but because existing DAC enforcement mechanisms assume that a single principal is responsible for any request, whereas in reality a request may be influenced by multiple principals; thus these mechanisms cannot correctly identify the true origin(s) of a request and fall prey to trojan horses. We propose to solve this problem by combining DAC's policy specification with new enforcement techniques that use ideas from MAC's information flow tracking. Our model, called Information Flow Enhanced DAC (IFEDAC), significantly strengthens end host security, while preserving to a large degree DAC's ease of use. In this paper, we present the IFEDAC model, analyze its security properties, and discuss our implementation for Linux.},
+	booktitle = {Proceedings of the 14th ACM Symposium on Access Control Models and Technologies},
+	pages = {237–246},
+	numpages = {10},
+	keywords = {access control, information flow, operating system},
+	location = {Stresa, Italy},
+	series = {SACMAT '09}
+}
+
+@INPROCEEDINGS {FS:MAC-DAC:ACSAC-1988,
+	author = { Thomas, T. },
+	booktitle = { Fourth Aerospace Computer Security Applications },
+	title = {{ A mandatory access control mechanism for the Unix file system }},
+	year = {1988},
+	volume = {},
+	ISSN = {},
+	pages = {173,174,175,176,177},
+	abstract = { The design of a mandatory access control (MAC) mechanism for the Unix file system is described. The design is simple, compatible with AT&T's Systems V and Berkeley's BSD Unix with Sun Microsystem's Network File System support, and it avoids some of the deficiencies present in approaches done to date. The MAC design introduces the concept of file name hiding. The design eliminates the need for partitioned directories and the need to log out and then log in again to use upgraded directories. The author briefly describes the traditional Unix file system. Approaches to adding a mandatory access control mechanism to the Unix file system are detailed, and problems with the approaches are examined. Finally, the proposed approach is described, including an explanation of how it solves the deficiencies of the previous approaches. },
+	keywords = {Access control;File systems;Data security;Erbium},
+	doi = {10.1109/ACSAC.1988.113437},
+	url = {https://doi.ieeecomputersociety.org/10.1109/ACSAC.1988.113437},
+	publisher = {IEEE Computer Society},
+	address = {Los Alamitos, CA, USA},
+	month =sep}
+
+@inproceedings{huang2022removing,
+	author = {Kecheng Huang and Zhaoyan Shen and Zhiping Jia and Zili Shao and Feng Chen},
+	title = {Removing {Double-Logging} with Passive Data Persistence in {LSM-tree} based Relational Databases},
+	booktitle = {20th USENIX Conference on File and Storage Technologies (FAST 22)},
+	year = {2022},
+	isbn = {978-1-939133-26-7},
+	address = {Santa Clara, CA},
+	pages = {101--116},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@misc{mysql-wl4925,
+	title = {{MySQL} {InnoDB} Redo Log Configuration},
+	author = {{Oracle Corporation}},
+	year = {2025},
+	url = {https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log.html},
+	note = {Official documentation detailing InnoDB log file preallocation mechanisms}
+}
+
+@misc{mysql-binlog,
+	title = {MySQL 8.4 Reference Manual: The Binary Log},
+	author = {{Oracle Corporation}},
+	year = {2025},
+	url = {https://dev.mysql.com/doc/refman/8.4/en/binary-log.html},		
+},
+@inproceedings {arrakis,
+	author = {Simon Peter and Thomas Anderson},
+	title = {Arrakis: A Case for the End of the Empire},
+	booktitle = {14th Workshop on Hot Topics in Operating Systems (HotOS XIV)},
+	year = {2013},
+	address = {Santa Ana Pueblo, NM},
+	url = {https://www.usenix.org/conference/hotos13/session/peter},
+	publisher = {USENIX Association},
+	month = may
+}
+@misc{mysql_redo_log,
+	title = {17.6.5 Redo Log},
+	author = {{MySQL Documentation Team}},
+	year = {2025},
+	url = {https://dev.mysql.com/doc/refman/en/innodb-redo-log.html}
+}
+
+@inproceedings {lee2019aios,
+	author = {Gyusun Lee and Seokha Shin and Wonsuk Song and Tae Jun Ham and Jae W. Lee and Jinkyu Jeong},
+	title = {Asynchronous {I/O} Stack: A Low-latency Kernel {I/O} Stack for {Ultra-Low} Latency {SSDs}},
+	booktitle = {2019 USENIX Annual Technical Conference (USENIX ATC 19)},
+	year = {2019},
+	isbn = {978-1-939133-03-8},
+	address = {Renton, WA},
+	pages = {603--616},
+	url = {https://www.usenix.org/conference/atc19/presentation/lee-gyusun},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@misc{T10Techn64:online,
+	key = {T10Techn64},
+	title = {T10 Technical Website:   {SCSI} Storage Interfaces },
+	url = {https://www.t10.org/},
+	note = {\url{https://www.t10.org/}},
+	author = {{T10 Technical Committee}},
+	year = {2016}
+}
+@misc{Untitled65:online,
+	key = {T10Doc08},
+	title = {T10 SCSI Standards Document (08-224r0)},
+	url = {https://www.t10.org/ftp/t10/document.08/08-224r0.pdf},
+	note = {\url{https://www.t10.org/ftp/t10/document.08/08-224r0.pdf} [Online]},
+	author = {{T10 Committee}}
+}
+
+@misc{libATADe51:online,
+	title = {libATA Developer's Guide},
+	note = {https://www.kernel.org/doc/html/latest/driver-api/libata.html},
+	author = {{ Linux Kernel Documentation}},
+	year = {2025}
+}
+
+@misc{SCSIGene22:online,
+	key = {LinuxKernelSCSI},
+	title = {SCSI Generic (sg) driver — The Linux Kernel documentation},
+	url = {https://www.kernel.org/doc/html/latest/scsi/scsi-generic.html},
+	note = {\url{https://www.kernel.org/doc/html/latest/scsi/scsi-generic.html} [Online]},
+	author = {{The Linux Kernel Documentation Team}}
+}
+
+@misc{githubObdeployexampleminilocalexampleyamlMaster,
+	author = {Oceanbase},
+	title = {obdeploy/example/mini-local-example.yaml at master · oceanbase/obdeploy --- github.com},
+	howpublished = {\url{https://github.com/oceanbase/obdeploy/blob/master/example/mini-local-example.yaml}},
+	year = {2024},
+}
+
+@misc{oceanbaseSysbenchBenchmark,
+	author = {oceanbaseSysbenchBenchmark},
+	title = { {S}ysbench benchmark report of {O}cean{B}ase {D}atabase|{V}4.2.1|{O}cean{B}ase {D}atabase| docs|{D}istributed {D}atabase --- en.oceanbase.com},
+	howpublished = {\url{https://en.oceanbase.com/docs/common-oceanbase-database-10000000001103501}},
+	year = {},
+}
+
+@article{mohan1992aries,
+	title={ARIES: a transaction recovery method supporting fine-granularity locking and partial rollbacks using write-ahead logging},
+	author={Mohan, C and Haderle, Don and Lindsay, Bruce and Pirahesh, Hamid and Schwarz, Peter},
+	journal={ACM Transactions on Database Systems (TODS)},
+	volume={17},
+	number={1},
+	pages={94--162},
+	year={1992},
+	publisher={ACM}
+}
+
+@book{gray1993transaction,
+	title={Transaction processing: concepts and techniques},
+	author={Gray, Jim and Reuter, Andreas},
+	year={1993},
+	publisher={Morgan Kaufmann}
+}
+
+@book{love2010linux,
+	title={Linux kernel development},
+	author={Love, Robert},
+	year={2010},
+	edition={3rd},
+	publisher={Addison-Wesley Professional}
+}
+
+@inproceedings{mathur2007ext4,
+	title={The new ext4 filesystem: current status and future plans},
+	author={Mathur, Avantika and Cao, Mingming and Bhattacharya, Suparna and Dilger, Andreas and Tomas, Alex and Vivier, Laurent},
+	booktitle={Proceedings of the Linux symposium},
+	volume={2},
+	pages={21--33},
+	year={2007}
+}
+
+@inproceedings{prabhakaran2005analysis,
+	title={Analysis and evolution of journaling file systems},
+	author={Prabhakaran, Vijayan and Arpaci-Dusseau, Andrea C and Arpaci-Dusseau, Remzi H},
+	booktitle={USENIX Annual Technical Conference},
+	pages={105--120},
+	year={2005}
+}
+
+@inproceedings{tweedie1998journaling,
+	title={Journaling the Linux ext2fs filesystem},
+	author={Tweedie, Stephen C},
+	booktitle={The Fourth Annual Linux Expo},
+	year={1998}
+}
+
+@inproceedings{smalley2001implementing,
+	title={Implementing SELinux as a Linux security module},
+	author={Smalley, Stephen and Vance, Chris and Salamon, Wayne},
+	booktitle={NSA Technical Report},
+	year={2001}
+}
+
+@inproceedings{wright2002linux,
+	title={Linux security modules: General security support for the linux kernel},
+	author={Wright, Chris and Cowan, Crispin and Smalley, Stephen and Morris, James and Kroah-Hartman, Greg},
+	booktitle={USENIX Security Symposium},
+	pages={17--31},
+	year={2002}
+}
+
+@inproceedings{loscocco2001integrating,
+	title={Integrating flexible support for security policies into the Linux operating system},
+	author={Loscocco, Peter and Smalley, Stephen},
+	booktitle={USENIX Annual Technical Conference, FREENIX Track},
+	pages={29--42},
+	year={2001}
+}
+
+@misc{ext4moveextent,
+	title={EXT4\_IOC\_MOVE\_EXT - Online defragmentation for ext4},
+	author={{Linux Kernel Documentation}},
+	year={2026},
+	note={https://www.kernel.org/doc/html/latest/filesystems/ext4.html},
+}
+
+@misc{ext4defrag,
+	title={e4defrag - online defragmentation for ext4 filesystem},
+	author={{Linux Manual Pages}},
+	year={2024},
+	url={https://man7.org/linux/man-pages/man8/e4defrag.8.html},
+	note={Manual page for ext4 defragmentation utility}
+}
+
+@misc{Ext4:extent-size,
+	author = {Srivathsa Dara},
+	title = {Extents and Extent allocation in {Ext4}},
+	url = {https://blogs.oracle.com/linux/post/extents-and-extent-allocation-in-ext4},
+	year = {2024},
+	month = oct,
+},
+
+@misc{githubGitHubMultifacetBypassd,
+	author = {{The SCAIL Reseach Group}},
+	title = {Bypassd: Enabling fast userspace access to shared {SSDs}},
+	howpublished = {\url{https://github.com/multifacet/BypassD}},
+	year = {2023},
+}
+
+@inproceedings {fsync:FastCommit:ATC-2024,
+	author = {Harshad Shirwadkar and others},
+	title = {{FastCommit}: resource-efficient, performant and cost-effective file system journaling},
+	booktitle = {2024 USENIX Annual Technical Conference (USENIX ATC 24)},
+	year = {2024},
+	isbn = {978-1-939133-41-0},
+	address = {Santa Clara, CA},
+	pages = {157--171},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings {fsync:TxFS:ATC-2018,
+	author = {Yige Hu and Zhiting Zhu and Ian Neal and Youngjin Kwon and Tianyu Cheng and Vijay Chidambaram and Emmett Witchel},
+	title = {{TxFS}: Leveraging {File-System} Crash Consistency to Provide {ACID} Transactions},
+	booktitle = {2018 USENIX Annual Technical Conference (USENIX ATC 18)},
+	year = {2018},
+	isbn = {978-1-939133-01-4},
+	address = {Boston, MA},
+	pages = {879--891},
+	url = {https://www.usenix.org/conference/atc18/presentation/hu},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings {fsync:exF2FS:FAST-2022,
+	author = {Joontaek Oh and Sion Ji and Yongjin Kim and Youjip Won},
+	title = {{exF2FS}: Transaction Support in {Log-Structured} Filesystem},
+	booktitle = {20th USENIX Conference on File and Storage Technologies (FAST 22)},
+	year = {2022},
+	isbn = {978-1-939133-26-7},
+	address = {Santa Clara, CA},
+	pages = {345--362},
+	url = {https://www.usenix.org/conference/fast22/presentation/oh},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@misc{Untitled65online,
+	key = {T10Doc08},
+	title = {T10 SCSI Standards Document (08-224r0)},
+	url = {https://www.t10.org/ftp/t10/document.08/08-224r0.pdf},
+	note = {\url{https://www.t10.org/ftp/t10/document.08/08-224r0.pdf} [Online]},
+	author = {{T10 Technical Committee}}
+}
+
+@misc{libATADe51online,
+	key = {LinuxKernelATA},
+	title = {libATA Developer's Guide — The Linux Kernel documentation},
+	url = {https://www.kernel.org/doc/html/latest/driver-api/libata.html},
+	note = {\url{https://www.kernel.org/doc/html/latest/driver-api/libata.html} [Online]},
+	author = {{The Linux Kernel Documentation Team}}
+}
+
+@misc{SCSIGene22online,
+	key = {LinuxKernelSCSI},
+	title = {SCSI Generic (sg) driver — The Linux Kernel documentation},
+	url = {https://www.kernel.org/doc/html/latest/scsi/scsi-generic.html},
+	note = {\url{https://www.kernel.org/doc/html/latest/scsi/scsi-generic.html} [Online]},
+	author = {{The Linux Kernel Documentation Team}}
+}
+
+@inproceedings {fsync:rethink:OSDI-2006,
+	author = {Edmund B. Nightingale and others},
+	title = {Rethink the Sync},
+	booktitle = {7th USENIX Symposium on Operating Systems Design and Implementation (OSDI 06)},
+	year = {2006},
+	address = {Seattle, WA},
+	publisher = {USENIX Association},
+	month = nov
+}
+
+@inproceedings{fsync:OptFS:SOSP-2013,
+	author = {Chidambaram, Vijay and others},
+	title = {Optimistic crash consistency},
+	year = {2013},
+	isbn = {9781450323888},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	doi = {10.1145/2517349.2522726},
+	abstract = {We introduce optimistic crash consistency, a new approach to crash consistency in journaling file systems. Using an array of novel techniques, we demonstrate how to build an optimistic commit protocol that correctly recovers from crashes and delivers high performance. We implement this optimistic approach within a Linux ext4 variant which we call OptFS. We introduce two new file-system primitives, osync() and dsync(), that decouple ordering of writes from their durability. We show through experiments that OptFS improves performance for many workloads, sometimes by an order of magnitude; we confirm its correctness through a series of robustness tests, showing it recovers to a consistent state after crashes. Finally, we show that osync() and dsync() are useful in atomic file system and database update scenarios, both improving performance and meeting application-level consistency demands.},
+	booktitle = {Proceedings of the Twenty-Fourth ACM Symposium on Operating Systems Principles},
+	pages = {228 243},
+	numpages = {16},
+	location = {Farminton, Pennsylvania},
+	series = {SOSP '13}
+}
+
+@inproceedings {fsync:iJournaling:ATC-2017,
+	author = {Daejun Park and Dongkun Shin},
+	title = {{iJournaling}: {Fine-Grained} Journaling for Improving the Latency of Fsync System Call},
+	booktitle = {2017 USENIX Annual Technical Conference (USENIX ATC 17)},
+	year = {2017},
+	isbn = {978-1-931971-38-6},
+	address = {Santa Clara, CA},
+	pages = {787--798},
+	publisher = {USENIX Association},
+	month = jul
+}
+@misc{TracingL22:online,
+	key   = {TracingL22},
+	title = {Tracing Linux: Fast, Compatible, Complete},
+	note  = {\url{https://www.confluera.com/post/tracing-linux-fast-compatible-complete}},
+	author = {Christopher Arges},
+	year = {2020},
+	month = mar,
+}
+
+@misc{tracinga58:online,
+	key   = {tracinga58},
+	title = {tracing: attach eBPF programs to tracepoints/syscalls/kprobe [LWN.net]},
+	note  = {\url{https://lwn.net/Articles/630965/} [Online]},
+	author = {}
+}
+
+
+@misc{tracinga69:online,
+	key   = {tracinga69},
+	title = {tracing: attach eBPF programs to tracepoints/syscalls/kprobe [LWN.net]},
+	note  = {\url{https://lwn.net/Articles/630965/} [Online]},
+	author = {}
+}
+
+@misc{TheeBPFR54:online,
+	title={The eBPF Runtime in the Linux Kernel}, 
+	author={Bolaji Gbadamosi and Luigi Leonardi and Tobias Pulls and Toke Høiland-Jørgensen and Simone Ferlin-Reiter and Simo Sorce and Anna Brunström},
+	year={2024},
+	eprint={2410.00026},
+	archivePrefix={arXiv},
+	primaryClass={cs.OS},
+	url={https://arxiv.org/abs/2410.00026}, 
+}
+
+@misc{tracinga22:online,
+	key   = {tracinga22},
+	title = {tracing: attach eBPF programs to tracepoints/syscalls/kprobe [LWN.net]},
+	note  = {\url{https://lwn.net/Articles/630965/} [Online]},
+	author = {}
+}
+@inproceedings {won2018barrier,
+	author = {Youjip Won and others},
+	title = {{Barrier-Enabled} {IO} Stack for Flash Storage},
+	booktitle = {16th USENIX Conference on File and Storage Technologies (FAST 18)},
+	year = {2018},
+	isbn = {978-1-931971-42-3},
+	address = {Oakland, CA},
+	pages = {211--226},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+
+
+ 
+
+@misc{Basicsof14:online,
+	author = {Glenn K. Lockwood},
+	title = {Basics of I/O Benchmarking},
+	url = "https://blog.glennklockwood.com/2016/07/basics-of-io-benchmarking.html",
+	month = {7},
+	year = {2016},
+}
+
+@misc{IORLustr6:online,
+	author = {Lustre},
+	title = {IOR - Lustre Wiki},
+	url = "https://wiki.lustre.org/IOR",
+	month = {},
+	year = {},
+}
+
+@misc{spdkStoragePerformance,
+	author = {Benjamin Walker},
+	title = {{S}torage {P}erformance {D}evelopment {K}it --- spdk.io},
+	howpublished = {\url{https://spdk.io/}},
+	year = {2025},
+}
+
+@misc{amd2007technology,
+	title={Technology (IOMMU) specification},
+	author={AMD, I and Virtualization, O},
+	year={2007},
+	publisher={February}
+}
+
+@article{10.1145/2619092,
+	author = {Yu, Young Jin and Shin, Dong In and Shin, Woong and Song, Nae Young and Choi, Jae Woo and Kim, Hyeong Seog and Eom, Hyeonsang and Yeom, Heon Young},
+	title = {Optimizing the Block {I/O} Subsystem for Fast Storage Devices},
+	year = {2014},
+	issue_date = {June 2014},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {32},
+	number = {2},
+	issn = {0734-2071},
+	url = {https://doi.org/10.1145/2619092},
+	doi = {10.1145/2619092},
+	abstract = {Fast storage devices are an emerging solution to satisfy data-intensive applications. They provide high transaction rates for DBMS, low response times for Web servers, instant on-demand paging for applications with large memory footprints, and many similar advantages for performance-hungry applications. In spite of the benefits promised by fast hardware, modern operating systems are not yet structured to take advantage of the hardware's full potential. The software overhead caused by an OS, negligible in the past, adversely impacts application performance, lessening the advantage of using such hardware. Our analysis demonstrates that the overheads from the traditional storage-stack design are significant and cannot easily be overcome without modifying the hardware interface and adding new capabilities to the operating system.In this article, we propose six optimizations that enable an OS to fully exploit the performance characteristics of fast storage devices. With the support of new hardware interfaces, our optimizations minimize per-request latency by streamlining the I/O path and amortize per-request latency by maximizing parallelism inside the device. We demonstrate the impact on application performance through well-known storage benchmarks run against a Linux kernel with a customized SSD. We find that eliminating context switches in the I/O path decreases the software overhead of an I/O request from 20 microseconds to 5 microseconds and a new request merge scheme called Temporal Merge enables the OS to achieve 87\% to 100\% of peak device performance, regardless of request access patterns or types. Although the performance improvement by these optimizations on a standard SATA-based SSD is marginal (because of its limited interface and relatively high response times), our sensitivity analysis suggests that future SSDs with lower response times will benefit from these changes. The effectiveness of our optimizations encourages discussion between the OS community and storage vendors about future device interfaces for fast storage devices.},
+	journal = {ACM Trans. Comput. Syst.},
+	month = jun,
+	articleno = {6},
+	numpages = {48},
+	keywords = {request batching, extended interface, device polling, I/O subsystem},
+}
+
+@inproceedings{10.1145/2588555.2595632,
+	author = {Kang, Woon-Hak and Lee, Sang-Won and Moon, Bongki and Kee, Yang-Suk and Oh, Moonwook},
+	title = {Durable write cache in flash memory {SSD} for relational and {NoSQL} databases},
+	year = {2014},
+	isbn = {9781450323765},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/2588555.2595632},
+	doi = {10.1145/2588555.2595632},
+	abstract = {In order to meet the stringent requirements of low latency as well as high throughput, web service providers with large data centers have been replacing magnetic disk drives with flash memory solid-state drives (SSDs). They commonly use relational and NoSQL database engines to manage OLTP workloads in the warehouse-scale computing environments. These modern database engines rely heavily on redundant writes and frequent cache flushes to guarantee the atomicity and durability of transactional updates. This has become a serious bottleneck of performance in both relational and NoSQL database engines. This paper presents a new SSD prototype called DuraSSD equipped with tantalum capacitors. The tantalum capacitors make the device cache inside DuraSSD durable, and additional firmware features of DuraSSD take advantage of the durable cache to support the atomicity and durability of page writes. It is the first time that a flash memory SSD with durable cache has been used to achieve an order of magnitude improvement in transaction throughput without compromising the atomicity and durability. Considering that the simple capacitors increase the total cost of an SSD no more than one percent, DuraSSD clearly provides a cost-effective means for transactional support. DuraSSD is also expected to alleviate the problem of high tail latency by minimizing write stalls.},
+	booktitle = {Proceedings of the 2014 ACM SIGMOD International Conference on Management of Data},
+	pages = {529–540},
+	numpages = {12},
+	keywords = {ssd, durable cache, durability, atomicity},
+	location = {Snowbird, Utah, USA},
+	series = {SIGMOD '14}
+}
+
+
+
+@inproceedings {FS:direct+buffered:FAST-2024,
+	author = {Yingjin Qian and Marc-Andr{\'e} Vef and Patrick Farrell and Andreas Dilger and Xi Li and Shuichi Ihara and Yinjin Fu and Wei Xue and Andre Brinkmann},
+	title = {Combining Buffered {I/O} and Direct {I/O} in Distributed File Systems},
+	booktitle = {22nd USENIX Conference on File and Storage Technologies (FAST 24)},
+	year = {2024},
+	isbn = {978-1-939133-38-0},
+	address = {Santa Clara, CA},
+	pages = {17--33},
+	url = {https://www.usenix.org/conference/fast24/presentation/qian},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@inproceedings {FS:streamcache:FAST-2024,
+	author = {Zhiyue Li and Guangyan Zhang},
+	title = {{StreamCache}: Revisiting Page Cache for File Scanning on Fast Storage Devices},
+	booktitle = {2024 USENIX Annual Technical Conference (USENIX ATC 24)},
+	year = {2024},
+	isbn = {978-1-939133-41-0},
+	address = {Santa Clara, CA},
+	pages = {1119--1134},
+	url = {https://www.usenix.org/conference/atc24/presentation/li-zhiyue},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings{zhu2023asynchronous,
+	title={Asynchronous and Adaptive Checkpoint for WAL-based Data Storage Systems},
+	author={Zhu, Li and Hu, Yanpeng and Wang, Chundong},
+	booktitle={2023 IEEE 29th International Conference on Parallel and Distributed Systems (ICPADS)},
+	pages={1238--1245},
+	year={2023},
+	organization={IEEE}
+}
+
+@article{10.14778,
+	author = {Won, Youjip and Kim, Sundoo and Yun, Juseong and Tuan, Dam Quang and Seo, Jiwon},
+	title = {{DASH}: database shadowing for mobile {DBMS}},
+	year = {2019},
+	issue_date = {March 2019},
+	journal = {VLDB Endowment},
+	volume = {12},
+	number = {7},
+	issn = {2150-8097},
+	url = {https://doi.org/10.14778/3317315.3317321},
+	doi = {10.14778/3317315.3317321},
+	month = mar,
+	pages = {793–806},
+	numpages = {14}
+}
+
+@inproceedings{10.1145/2897073.2897093,
+	author = {Tuan, Dam Quang and Cheon, Seungyong and Won, Youjip},
+	title = {On the {IO} characteristics of the SQLite transactions},
+	year = {2016},
+	isbn = {9781450341783},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/2897073.2897093},
+	doi = {10.1145/2897073.2897093},
+	abstract = {This work is dedicated to study the IO characteristics of SQLite transaction in Android platform. We collect the block level IO trace from for six months. We develop an elaborate pattern matching algorithm. It allows us to identify the individual SQLite transactions from the raw IO trace, which is essentially an interleaved mixture of IO requests from concurrently running smartphone applications. Among the various observations obtained from the study, we can summarize the key findings as follows. We carefully believe that these deserve special attention. First, SQLite transaction is under extreme inefficiency. In an SQLite transaction, the IO's for SQLite journaling and EXT4 filesystem journaling account for over 75\% of the entire IO volume in a transaction. Second, the suspend and the wakeup feature of the smartphone can leave the SQLite transaction to an extreme delay, a few minutes. Third, in fair number of occasions, the SQLite transactions are being used in inconsiderate manner. We find that a single SQLite transaction inserts 17.5 MByte of data to the database. It turns out to be the operation of initializing the map database. We hope that the findings obtained in this study are bifurcated to various efforts to makes the SQLite related IO more efficient and effective.},
+	booktitle = {Proceedings of the International Conference on Mobile Software Engineering and Systems},
+	pages = {214–224},
+	numpages = {11},
+	keywords = {real-time IO characteristics, measurement, SQLite, IO stack, EXT4, Android},
+	location = {Austin, Texas},
+	series = {MOBILESoft '16}
+}
+
+
+@inproceedings{wu2023treesls,
+	title={Treesls: A whole-system persistent microkernel with tree-structured state checkpoint on nvm},
+	author={Wu, Fangnuo and Dong, Mingkai and Mo, Gequan and Chen, Haibo},
+	booktitle={Proceedings of the 29th Symposium on Operating Systems Principles},
+	pages={1--16},
+	year={2023}
+}
+
+@article{DB:RocksDB:TOS-2021,
+	author = {Dong, Siying and Kryczka, Andrew and Jin, Yanqin and Stumm, Michael},
+	title = {{RocksDB}: Evolution of Development Priorities in a Key-value Store Serving Large-scale Applications},
+	year = {2021},
+	issue_date = {November 2021},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {17},
+	number = {4},
+	issn = {1553-3077},
+	url = {https://doi.org/10.1145/3483840},
+	doi = {10.1145/3483840},
+	abstract = {This article is an eight-year retrospective on development priorities for RocksDB, a key-value store developed at Facebook that targets large-scale distributed systems and that is optimized for Solid State Drives (SSDs). We describe how the priorities evolved over time as a result of hardware trends and extensive experiences running RocksDB at scale in production at a number of organizations: from optimizing write amplification, to space amplification, to CPU utilization. We describe lessons from running large-scale applications, including that resource allocation needs to be managed across different RocksDB instances, that data formats need to remain backward- and forward-compatible to allow incremental software rollouts, and that appropriate support for database replication and backups are needed. Lessons from failure handling taught us that data corruption errors needed to be detected earlier and that data integrity protection mechanisms are needed at every layer of the system. We describe improvements to the key-value interface. We describe a number of efforts that in retrospect proved to be misguided. Finally, we describe a number of open problems that could benefit from future research.},
+	journal = {ACM Trans. Storage},
+	month = oct,
+	articleno = {26},
+	numpages = {32},
+	keywords = {Key-value stores, large-scale applications, RocksDB, SSD, compaction, databases}
+}
+
+@misc{SQL-server:fallocate,
+	author = {Bob Dorr},
+	title = {{SQL Server} Instant File Initialization: {SetFileValidData} ({Windows}) vs fallocate ({Linux})},
+	howpublished = {\url{https://learn.microsoft.com/en-us/archive/blogs/bobsql/sql-server-instant-file-initialization-setfilevaliddata-windows-vs-fallocate-linux}},
+	year = {2018},
+	month = Dec,
+}
+
+@misc{Ext4,
+	title = {Ext4: General Information},
+	author = {{The kernel development community}},
+	howpublished ={	\url{https://www.kernel.org/doc/html/latest/admin-guide/ext4.html}},
+	year = {2024},
+}
+
+@misc{Ext4-extent-tree1,
+	title = {Ext4: Dynamic Structures},
+	author = {{The kernel development community}},
+	howpublished ={	\url{	https://www.kernel.org/doc/html/latest/filesystems/ext4/dynamic.html}},
+	year = {2024},
+}
+
+
+@misc{Ext4-extent-tree2,
+	title = {Understanding {Ext4} Disk Layout, Part 2},
+	author = {Srivathsa Dara},
+	howpublished ={	\url{https://blogs.oracle.com/linux/post/understanding-ext4-disk-layout-part-2}},
+	year = {2023},
+	month = {Aug},
+}
+
+
+@misc{Ext4-extents,
+	title = {Extents and Extent allocation in {Ext4}},
+	author = { Srivathsa Dara},
+	howpublished ={	\url{https://blogs.oracle.com/linux/post/extents-and-extent-allocation-in-ext4}},
+	year = {2024},
+	month = Oct,
+}
+
+
+@misc{MySQL:fallocate,
+	author = {Oracle Corporation},
+	title = {{MySQL} 8.4 Reference Manual: Optimizing Tablespace Space Allocation on {Linux}},
+	howpublished = {\url{https://dev.mysql.com/doc/refman/8.4/en/innodb-optimize-tablespace-page-allocation.html}},
+	year = {2024},
+}
+
+
+@misc{PLP:samsung,
+	author = {{Samsung}},
+	title = {Power loss protection ({PLP}): Protect your data against sudden power loss},
+	howpublished = {\url{https://download.semiconductor.samsung.com/resources/others/Samsung_SSD_845DC_05_Power_loss_protection_PLP.pdf}},
+	year = {2014},
+}
+
+@misc{Sysbench38:online,
+	howpublished = {\url{https://github.com/akopytov/sysbench}},
+	title = {Sysbench},
+	author = {Peter Zaitsev},
+	day = {9},
+	month = {July},
+	year = {2024},
+}
+
+@misc{nvme-flush-command,
+	howpublished = {\url{https://manpages.debian.org/testing/nvme-cli/nvme-flush.1.en.html}},
+	title = {nvme-flush - {Flush} command},
+	author = {{NVM Express}},
+	day = {8},
+	month = {Dec},
+	year = {2025},
+}
+
+
+@inproceedings{SSD:BypassD:ASPLOS-2024,
+	author = {Yadalam, Sujay and others},
+	title = {{BypassD}: Enabling fast userspace access to shared {SSDs}},
+	year = {2024},
+	isbn = {9798400703720},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	doi = {10.1145/3617232.3624854},
+	abstract = {Modern storage devices, such as Optane NVMe SSDs, offer ultra-low latency of a few microseconds and high bandwidth of multiple gigabytes per second. At these speeds, the kernel software I/O stack is a substantial source of overhead. Userspace approaches avoid kernel software overheads but face challenges in supporting shared storage without major changes to file systems, the OS or the hardware.We propose a new I/O architecture, BypassD, for fast, userspace access to shared storage devices. BypassD takes inspiration from virtual memory: it uses virtual addresses to access a device and relies on hardware for translation and protection. Like memory-mapping a file, the OS kernel constructs a mapping for file contents in the page table. Userspace I/O requests then use virtual addresses from these mappings to specify which file and file offset to access. BypassD extends the IOMMU hardware to translate file offsets into device Logical Block Addresses. Existing applications require no modifications to use BypassD. Our evaluation shows that BypassD reduces latency for 4KB accesses by 42\% compared to standard Linux kernel and performs close to userspace techniques like SPDK that do not support device sharing. By eliminating software overheads, BypassD improves performance of real workloads, such as the WiredTiger storage engine, by ~20\%.},
+	booktitle = {Proceedings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)},
+	pages = {35–51},
+	numpages = {17},
+	keywords = {I/O performance, low latency, direct access, sharing, userspace, SSD, storage systems},
+	location = {La Jolla, CA, USA},
+}
+
+
+@misc{NVMe:commands,
+	author = {{NVM Express, Inc. }},
+	title = {{NVM} Express$\textregistered$: Base Specification -- I/O Commands (Revision 2.1)},
+	howpublished = {\url{file:///Users/wangc/Downloads/NVM-Express-Base-Specification-Revision-2.1-2024.08.05-Ratified.pdf}},
+	month = {Nov},
+	year = {2025},
+}
+
+@inproceedings{bench:YCSB,
+	author = {Cooper, Brian F. and Silberstein, Adam and Tam, Erwin and Ramakrishnan, Raghu and Sears, Russell},
+	title = {Benchmarking Cloud Serving Systems with {YCSB}},
+	booktitle = {Proceedings of the 1st ACM Symposium on Cloud Computing},
+	series = {SoCC '10},
+	year = {2010},
+	isbn = {978-1-4503-0036-0},
+	location = {Indianapolis, Indiana, USA},
+	pages = {143--154},
+	numpages = {12},
+	doi = {10.1145/1807128.1807152},
+	acmid = {1807152},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	keywords = {benchmarking, cloud serving database},
+} 
+
+
+@inproceedings {fsync:RFLUSH:FAST-2018,
+	author = {Jeseong Yeon and others},
+	title = {{RFLUSH}: Rethink the Flush},
+	booktitle = {16th USENIX Conference on File and Storage Technologies (FAST 18)},
+	year = {2018},
+	isbn = {978-1-931971-42-3},
+	address = {Oakland, CA},
+	pages = {201--210},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+
+@inproceedings{FS:Copy-on-Pin:ASPLOS-2023,
+	author = {Hildenbrand, David and Schulz, Martin and Amit, Nadav},
+	title = {Copy-on-Pin: The Missing Piece for Correct Copy-on-Write},
+	year = {2023},
+	isbn = {9781450399166},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3575693.3575716},
+	doi = {10.1145/3575693.3575716},
+	abstract = {Operating systems utilize Copy-on-Write (COW) to conserve memory and improve performance. During the last two decades, a series of COW-related bugs - which compromised security, corrupted memory and degraded performance - was found. The majority of these bugs are related to page "pinning", which operating systems employ to access process memory efficiently and to perform direct I/O. Unfortunately, the true cause of these bugs is not well understood, resulting in incomplete bug fixes. We show this by: (1) surveying previously reported pinning-related COW bugs; (2) uncovering new such bugs in Linux, FreeBSD, and NetBSD; and (3) showing that they occur because the COW logic does not consider page pinnings correctly, resulting in incorrect behavior (e.g., I/O of stale data). We then address the underlying problem by deriving when/how shared pages must be copied and under which conditions pinned pages can be shared to maintain correctness. Based on this assessment, we introduce the "Copy-on-Pin (COP)" scheme, an extension of the COW mechanism that handles pinned pages correctly by ensuring pinned pages and shared pages are mutually exclusive. However, we find that a naive implementation of this scheme hampers performance and increases complexity if pages are copied only when strictly necessary. To compensate, we introduce a relaxed-COP design, which does not require precise tracking of page sharing, maintains correctness without increasing complexity, and (while potentially needlessly copying pages in some corner cases) marginally improves performance. Our relaxed-COP solution has been integrated into Linux 5.19.},
+	booktitle = {Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2},
+	pages = {176–191},
+	numpages = {16},
+	keywords = {COW, copy-on-write, fork, memory deduplication, page pinning, page sharing, virtual memory},
+	location = {Vancouver, BC, Canada},
+	series = {ASPLOS 2023}
+}
+
+
+@misc{AnIntrod6:online,
+	author = {Bijan Mottahedeh},
+	title = {An Introduction to the io\_uring Asynchronous {I/O} Framework},
+	howpublished = {\url{https://blogs.oracle.com/linux/post/an-introduction-to-the-io-uring-asynchronous-io-framework}},
+	month = {May},
+	year = {2020},
+	day = {27},
+}
+
+@misc{uring:nvme,
+	author = {{Lord of the io\_uring}},
+	title = {io\_uring\_setup},
+	howpublished = {\url{https://unixism.net/loti/ref-iouring/io\_uring\_setup.html}},
+	month = {June },
+	year = {2020},
+	day = {15},
+}
+
+@misc{iouring,
+	author = {Jens Axboe},
+	year={2019},
+	title = {Efficient {IO} with io\_uring},
+	note = {\href{https://kernel.dk/io_uring.pdf}{https://kernel.dk/io\_uring.pdf}},
+}
+
+@misc{Howiouri4:online,
+	author = {Glauber Costa},
+	title = {How io\_uring and eBPF Will Revolutionize Programming in Linux - The New Stack},
+	howpublished = {\url{https://thenewstack.io/how-io_uring-and-ebpf-will-revolutionize-programming-in-linux}},
+	month = {April},
+	year = {2020},
+	day = {21},
+}
+
+@inproceedings {fsync:barrierFS:FAST-2018,
+	author = {Youjip Won and others},
+	title = {{Barrier-Enabled} {IO} Stack for Flash Storage},
+	booktitle = {16th USENIX Conference on File and Storage Technologies (FAST 18)},
+	year = {2018},
+	isbn = {978-1-931971-42-3},
+	address = {Oakland, CA},
+	pages = {211--226},
+	publisher = {USENIX Association},
+	month = feb,
+}
+
+@misc{1fioFlex42:online,
+	author = {Jens Axboe},
+	title = {fio - Flexible {I/O} tester rev. 3.36},
+	howpublished = {\url{https://fio.readthedocs.io/en/latest/fio_doc.html}},
+	year = {2024},
+	month = {August},
+	day = {15},
+}
+
+@INPROCEEDINGS{6702624,
+	
+	author={Momin, Orko and Chandy, John A.},
+	
+	booktitle={2013 IEEE International Conference on Cluster Computing (CLUSTER)}, 
+	
+	title={An object interface storage node for clustered file systems}, 
+	
+	year={2013},
+	
+	volume={},
+	
+	number={},
+	
+	pages={1-5},
+	
+	keywords={Linux;Writing;object-based storage;object storage devices;b-trees;Linux file system;object interface;clustered storage},
+	
+	doi={10.1109/CLUSTER.2013.6702624}
+}
+
+
+
+@misc{ioctlWik84:online,
+	author = {{Linux manual page}},
+	title = {ioctl: System Calls Manual},
+	howpublished = {\url{https://www.man7.org/linux/man-pages/man2/ioctl.2.html}},
+	month = {June},
+	year = {2025},
+}
+
+@misc{ext4-delalloc,
+	author = {{The kernel development community}},
+	title = {Ext4: Block and inode allocation Policy},
+	howpublished = {\url{https://docs.kernel.org/filesystems/ext4/overview.html#block-and-inode-allocation-policy}},
+	month = {Oct},
+	year = {2024},
+}
+
+@inproceedings {fsync:Sync+Sync:Security-2024,
+	author = {Qisheng Jiang and Chundong Wang},
+	title = {{Sync+Sync}: A Covert Channel Built on fsync with Storage},
+	booktitle = {33rd USENIX Security Symposium (USENIX Security 24)},
+	year = {2024},
+	isbn = {978-1-939133-44-1},
+	address = {Philadelphia, PA},
+	pages = {3349--3366},
+	url = {https://www.usenix.org/conference/usenixsecurity24/presentation/jiang-qisheng},
+	publisher = {USENIX Association},
+	month = aug,
+}
+
+@misc{GetStart56:online,
+	author = {{Intel Corporation}},
+	title = {Get Started with {Intel}$^{\textregistered}$ {VTune}$^{\texttrademark}$ Profiler},
+	howpublished = {\url{https://www.intel.com/content/www/us/en/docs/vtune-profiler}},
+	month = {Mar},
+	year = {2026},
+}
+
+@misc{fsync:bio-flags,
+	author = {{The kernel development community}},
+	title = {Explicit volatile write back cache control},
+	howpublished = {\url{https://www.kernel.org/doc/html/latest/block/writeback_cache_control.html}},
+	month = {Jan},
+	year = {2026},
+}
+@inproceedings{fsync:LazyBrrrier-Android:ASPLOS-2024,
+	author = {Zhang, Yuanyi and Zhang, Heng and Cao, Wenbin and He, Xing and Park, Daejun and Choi, Jinyoung and Park, SungJun},
+	title = {{LazyBarrier}: Reconstructing {Android} {IO} Stack for Barrier-Enabled Flash Storage},
+	year = {2024},
+	isbn = {9798400703850},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3620665.3640370},
+	doi = {10.1145/3620665.3640370},
+	abstract = {Costly synchronous write---a.k.a., fsync()---is a common approach to preserve the storage order of data. Android smart-phones use No-Barrier by default to improve fsync() performance. Recently, Barrier-Enabled IO Stack (BEIOS) provides an efficient order-preserving method for flash storage by barrier write commands (BWCs). However, our evaluation shows that BEIOS suffers from performance degradation in multi-threaded scenarios since BWCs increase linearly with the number of threads. This paper proposes LazyBarrier, a new order-preserving IO stack mainly involving order-preserving write (OPW) Model, the Lazy Issue algorithm, modified F2FS, and Barrier Scheduling. OPW Model is based on Finite Automata and defines state transition in OPW. Lazy Issue is a novel algorithm that minimizes BWCs. F2FS is modified to support OPW, and Barrier Scheduling solves the ordering problem in multi-queue block layer. The experiments on Android smartphones show that, compared with BEIOS, LazyBarrier improves OPW performance by 73\% and 29\% under the FIO benchmark and in real applications respectively. And LazyBarrier also outperforms BEIOS by 19\% in dbench workload in servers.},
+	booktitle = {Proceedings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2},
+	pages = {601–615},
+	numpages = {15},
+	keywords = {operating system, flash storage, file system},
+	location = {La Jolla, CA, USA},
+	series = {ASPLOS '24},
+}
+
+@article{SSD:PLP:TC-2016,
+	author = {Kim, Dongwook and Won, Youjip and Cha, Jaehyuk and Yoon, Sungroh and Choi, Jongmoo and Kang, Sooyong},  
+	title = {Exploiting Compression-Induced Internal Fragmentation for Power-Off Recovery in {SSD}},
+	year = {2016},
+	issue_date = {June 2016},
+	publisher = {IEEE Computer Society},
+	address = {USA},
+	volume = {65},
+	number = {6},
+	issn = {0018-9340},
+	doi = {10.1109/TC.2015.2462819},
+	abstract = {Recovery from sudden power-off (SPO) is one of the primary concerns among practitioners which bars the quick and wide deployment of flash storage devices. In this work, we propose Metadata Embedded Write (MEW), a novel scheme for handling the sudden power-off recovery in modern flash storage devices. Given that a large fraction of commercial SSDs employ compression technology, MEW exploits the compression-induced internal fragmentation in the data area to store rich metadata for fast and complete recovery. MEW consists of (i) a metadata embedding scheme to harbor SSD metadata in a physical page together with multiple compressed logical pages, (ii) an allocation chain based fast recovery scheme, and (iii) a light-weight metadata logging scheme which enables MEW to maintain the metadata for incompressible data, too. We performed extensive experiments to examine the performance of MEW. The performance overhead of MEW is 3 percent in the worst case, in terms of the write amplification factor, compared to the pure compression-based FTL that does not have any recovery scheme.},
+	journal = {IEEE Trans. Comput.},
+	month = jun,
+	pages = {1720–1733},
+	numpages = {14}
+}
+
+@inproceedings {cache:AC-key:ATC-2020,
+	author = {Fenggang Wu and Ming-Hong Yang and Baoquan Zhang and David H.C. Du},
+	title = {{AC-Key}: Adaptive Caching for {LSM-based} {Key-Value} Stores},
+	booktitle = {2020 USENIX Annual Technical Conference (USENIX ATC 20)},
+	year = {2020},
+	isbn = {978-1-939133-14-4},
+	pages = {603--615}, 
+	url = {https://www.usenix.org/conference/atc20/presentation/wu-fenggang},
+	publisher = {USENIX Association},
+	month = jul,
+}
+
+@inproceedings {cache:Symbiosis:FAST-2024,
+	author = {Yifan Dai and Jing Liu and Andrea Arpaci-Dusseau and Remzi Arpaci-Dusseau},
+	title = {Symbiosis: The Art of Application and Kernel Cache Cooperation},
+	booktitle = {22nd USENIX Conference on File and Storage Technologies (FAST 24)},
+	year = {2024},
+	isbn = {978-1-939133-38-0},
+	address = {Santa Clara, CA},
+	pages = {51--69},
+	url = {https://www.usenix.org/conference/fast24/presentation/dai},
+	publisher = {USENIX Association},
+	month = feb,
+}
+
+
+@inproceedings{SSD:Moneta-D:ASPLOS-2012,
+	author = {Caulfield, Adrian M. and others},
+	title = {Providing safe, user space access to fast, solid state disks},
+	year = {2012},
+	isbn = {9781450307598},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	doi = {10.1145/2150976.2151017},
+	abstract = {Emerging fast, non-volatile memories (e.g., phase change memories, spin-torque MRAMs, and the memristor) reduce storage access latencies by an order of magnitude compared to state-of-the-art flash-based SSDs. This improved performance means that software overheads that had little impact on the performance of flash-based systems can present serious bottlenecks in systems that incorporate these new technologies. We describe a novel storage hardware and software architecture that nearly eliminates two sources of this overhead: Entering the kernel and performing file system permission checks. The new architecture provides a private, virtualized interface for each process and moves file system protection checks into hardware. As a result, applications can access file data without operating system intervention, eliminating OS and file system costs entirely for most accesses. We describe the support the system provides for fast permission checks in hardware, our approach to notifying applications when requests complete, and the small, easily portable changes required in the file system to support the new access model. Existing applications require no modification to use the new interface. We evaluate the performance of the system using a suite of microbenchmarks and database workloads and show that the new interface improves latency and bandwidth for 4 KB writes by 60\% and 7.2x, respectively, OLTP database transaction throughput by up to 2.0x, and Berkeley-DB throughput by up to 5.7x. A streamlined asynchronous file IO interface built to fully utilize the new interface enables an additional 5.5x increase in throughput with 1 thread and 2.8x increase in efficiency for 512 B transfers.},
+	booktitle = {Proceedings of the 17th International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)},
+	pages = {387–400},
+	numpages = {14},
+	keywords = {I/O performance, file systems, non-volatile memory, storage systems, virtualization},
+	location = {London, England, UK},
+}
+
+@inproceedings {SSD:NVMeDirect:HotStorage-2016,
+	author = {Hyeong-Jun Kim and others},
+	title = {{NVMeDirect}: A User-space {I/O} Framework for Application-specific Optimization on {NVMe} {SSDs}},
+	booktitle = {8th USENIX Workshop on Hot Topics in Storage and File Systems (HotStorage 16)},
+	year = {2016},
+	address = {Denver, CO},
+	publisher = {USENIX Association},
+	month = jun,
+}
+
+@inproceedings {SSD:AIOS:ATC-2019,
+	author = {Gyusun Lee and Seokha Shin and Wonsuk Song and Tae Jun Ham and Jae W. Lee and Jinkyu Jeong},
+	title = {Asynchronous {I/O} Stack: A Low-latency Kernel {I/O} Stack for {Ultra-Low} Latency {SSDs}},
+	booktitle = {2019 USENIX Annual Technical Conference (USENIX ATC 19)},
+	year = {2019},
+	isbn = {978-1-939133-03-8},
+	address = {Renton, WA},
+	pages = {603--616},
+	url = {https://www.usenix.org/conference/atc19/presentation/lee-gyusun},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings {SSD:FS-processes:HotStorage-2019,
+	author = {Jing Liu and Andrea C. Arpaci-Dusseau and Remzi H. Arpaci-Dusseau and Sudarsun Kannan},
+	title = {File Systems as Processes},
+	booktitle = {11th USENIX Workshop on Hot Topics in Storage and File Systems (HotStorage 19)},
+	year = {2019},
+	address = {Renton, WA},
+	url = {https://www.usenix.org/conference/hotstorage19/presentation/liu},
+	publisher = {USENIX Association},
+	month = jul,
+}
+
+@INPROCEEDINGS{SSD:SPDK:CloudCom-2017,
+	author={Yang, Ziye and others},
+	booktitle={2017 IEEE International Conference on Cloud Computing Technology and Science (CloudCom)}, 
+	title={{SPDK}: A Development Kit to Build High Performance Storage Applications}, 
+	year={2017},
+	volume={},
+	number={},
+	pages={154-161},
+	keywords={Kernel;Performance evaluation;Nonvolatile memory;Libraries;Hardware;Inductors;User space NVMe driver;asynchronous polled mode driven I/O;High performance storage application},
+	doi={10.1109/CloudCom.2017.14},
+}
+
+@inproceedings {SSD:DevFS:FAST-2018,
+	author = {Sudarsun Kannan and Andrea C. Arpaci-Dusseau and Remzi H. Arpaci-Dusseau and Yuangang Wang and Jun Xu and Gopinath Palani},
+	title = {Designing a True {Direct-Access} File System with {DevFS}},
+	booktitle = {16th USENIX Conference on File and Storage Technologies (FAST 18)},
+	year = {2018},
+	isbn = {978-1-931971-42-3},
+	address = {Oakland, CA},
+	pages = {241--256},
+	url = {https://www.usenix.org/conference/fast18/presentation/kannan},
+	publisher = {USENIX Association},
+	month = feb,
+}
+
+
+@INPROCEEDINGS{SSD:Moneta:Micro-2010,
+	author={Caulfield, Adrian M. and others},
+	booktitle={2010 43rd Annual IEEE/ACM International Symposium on Microarchitecture}, 
+	title={Moneta: A High-Performance Storage Array Architecture for Next-Generation, Non-volatile Memories}, 
+	year={2010},
+	volume={},
+	number={},
+	pages={385-395},
+	keywords={Software;Bandwidth;Phase change materials;Hardware;Arrays;Optimization;Nonvolatile memory;software IO optimizations;non-volatile memories;phase change memories;storage systems},
+	doi={10.1109/MICRO.2010.33}
+}
+
+
+@inproceedings {280870,
+	author = {Yuhong Zhong and others},
+	title = {{XRP}: {In-Kernel} Storage Functions with {eBPF}},
+	booktitle = {16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22)},
+	year = {2022},
+	isbn = {978-1-939133-28-1},
+	address = {Carlsbad, CA},
+	pages = {375--393},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@inproceedings {260309,
+	author = {Steven McCanne and Van Jacobson},
+	title = {The {BSD} Packet Filter: A New Architecture for User-level Packet Capture},
+	booktitle = {USENIX Winter 1993 Conference (USENIX Winter 1993 Conference)},
+	year = {1993},
+	address = {San Diego, CA},
+	url = {https://www.usenix.org/conference/usenix-winter-1993-conference/bsd-packet-filter-new-architecture-user-level-packet},
+	publisher = {USENIX Association},
+	month = jan
+}
+
+@article{vieira2020fast,
+	title={Fast packet processing with ebpf and xdp: Concepts, code, challenges, and applications},
+	author={Vieira, Marcos AM and Castanho, Matheus S and Pac{\'\i}fico, Racyus DG and Santos, Elerson RS and J{\'u}nior, Eduardo PM C{\^a}mara and Vieira, Luiz FM},
+	journal={ACM Computing Surveys (CSUR)},
+	volume={53},
+	number={1},
+	pages={1--36},
+	year={2020},
+	publisher={ACM New York, NY, USA}
+}
+
+@inproceedings {285762,
+	author = {Hobin Woo and Daegyu Han and Seungjoon Ha and Sam H. Noh and Beomseok Nam},
+	title = {On Stacking a Persistent Memory File System on Legacy File Systems},
+	booktitle = {21st USENIX Conference on File and Storage Technologies (FAST 23)},
+	year = {2023},
+	isbn = {978-1-939133-32-8},
+	address = {Santa Clara, CA},
+	pages = {281--296},
+	url = {https://www.usenix.org/conference/fast23/presentation/woo},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@inproceedings{oh2022exf2fs,
+	title={$\{$exF2FS$\}$: Transaction Support in $\{$Log-Structured$\}$ Filesystem},
+	author={Oh, Joontaek and Ji, Sion and Kim, Yongjin and Won, Youjip},
+	booktitle={20th USENIX Conference on File and Storage Technologies (FAST 22)},
+	pages={345--362},
+	year={2022}
+}
+
+@inproceedings{cao2024fetchbpf,
+	title={$\{$FetchBPF$\}$: Customizable Prefetching Policies in Linux with $\{$eBPF$\}$},
+	author={Cao, Xuechun and Patel, Shaurya and Lim, Soo Yee and Han, Xueyuan and Pasquier, Thomas},
+	booktitle={2024 USENIX Annual Technical Conference (USENIX ATC 24)},
+	pages={369--378},
+	year={2024}
+}
+
+@inproceedings{joshi2024passthru,
+	title={$\{$I/O$\}$ Passthru: Upstreaming a flexible and efficient $\{$I/O$\}$ Path in Linux},
+	author={Joshi, Kanchan and Gupta, Anuj and Gonz{\'a}lez, Javier and Kumar, Ankit and Reddy, Krishna Kanth and George, Arun and Lund, Simon and Axboe, Jens},
+	booktitle={22nd USENIX Conference on File and Storage Technologies (FAST 24)},
+	pages={107--121},
+	year={2024}
+}
+
+@inproceedings {285746,
+	author = {Zhe Yang and Youyou Lu and Xiaojian Liao and Youmin Chen and Junru Li and Siyu He and Jiwu Shu},
+	title = {{lambda-IO}: A Unified {IO} Stack for Computational Storage},
+	booktitle = {21st USENIX Conference on File and Storage Technologies (FAST 23)},
+	year = {2023},
+	isbn = {978-1-939133-32-8},
+	address = {Santa Clara, CA},
+	pages = {347--362},
+	url = {https://www.usenix.org/conference/fast23/presentation/yang-zhe},
+	publisher = {USENIX Association},
+	month = feb
+}
+
+@inproceedings {234870,
+	author = {Ashish Bijlani and Umakishore Ramachandran},
+	title = {Extension Framework for File Systems in User space},
+	booktitle = {2019 USENIX Annual Technical Conference (USENIX ATC 19)},
+	year = {2019},
+	isbn = {978-1-939133-03-8},
+	address = {Renton, WA},
+	pages = {121--134},
+	url = {https://www.usenix.org/conference/atc19/presentation/bijlani},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@misc{wikipediaSQLiteWikipedia,
+	author = {},
+	title = {{S}{Q}{L}ite - {W}ikipedia --- en.wikipedia.org},
+	howpublished = {\url{https://en.wikipedia.org/wiki/SQLite}},
+	year = {},
+
+}
+
+@misc{kernel-LSM,
+	author = {Stephen Smalley and Timothy Fraser and Chris Vance},
+	title = {Linux Security Modules: General Security Hooks for {Linux}},
+	howpublished = {\url{https://www.kernel.org/doc/html/latest/security/lsm.html}},
+	year = {2001},
+	month = {Feb},
+}
+
+@inproceedings {270993,
+	author = {Timothy Fraser},
+	title = {{LOMAC}: {MAC} You Can Live With},
+	booktitle = {2001 USENIX Annual Technical Conference (USENIX ATC 01)},
+	year = {2001},
+	address = {Boston, MA},
+	url = {https://www.usenix.org/conference/2001-usenix-annual-technical-conference/lomac-mac-you-can-live},
+	publisher = {USENIX Association},
+	month = jun
+}
+
+
+@inproceedings {270581,
+	author = {Chris Wright and Crispin Cowan and Stephen Smalley and James Morris and Greg Kroah-Hartman},
+	title = {Linux Security Modules: General Security Support for the {Linux} Kernel},
+	booktitle = {11th USENIX Security Symposium (USENIX Security 02)},
+	year = {2002},
+	address = {San Francisco, CA},
+	url = {https://www.usenix.org/conference/11th-usenix-security-symposium/linux-security-modules-general-security-support-linux},
+	publisher = {USENIX Association},
+	month = aug
+}
+
+@misc{eBPF-LSM,
+	author = {{eunomia-bpf Community}},
+	title = {{eBPF} Tutorial by Example 19: Security Detection and Defense using {LSM}},
+	howpublished = {\url{https://eunomia.dev/tutorials/19-lsm-connect/}},
+	year = {2026},
+	month = {Feb},
+}
+
+@misc{prog-LSM,
+	author = {{The kernel development community}},
+	title = {{LSM} {BPF} programs},
+	howpublished = {\url{https://docs.kernel.org/bpf/prog_lsm.html}},
+	year = {2024},
+	month = Oct,
+}
+
+
+
+@misc{oceanbaseOpenUltra,
+	author = {},
+	title = {{O}pen, {U}ltra {F}ast, {C}ost {E}fficient, {D}istributed {S}{Q}{L} {D}atabase | {O}cean{B}ase --- en.oceanbase.com},
+	howpublished = {\url{https://en.oceanbase.com/blog/tag/tpcc}},
+	year = {},
+	note = {[Accessed 09-10-2024]},
+}
+
+@misc{oceanbaseOverviewV410OceanBaseDatabase,
+	author = {OceanBase},
+	title = { {O}verview|{V}4.1.0|{O}cean{B}ase {D}atabase| docs|{D}istributed {D}atabase --- en.oceanbase.com},
+	howpublished = {\url{https://en.oceanbase.com/docs/common-oceanbase-database-10000000000919949}},
+	year = {},
+	note = {[Accessed 09-10-2024]},
+}
+
+@misc{sqliteSQLiteHome,
+	author = {{SQLite Consortium}},
+	title = {{S}{Q}{L}ite {H}ome {P}age --- sqlite.org},
+	howpublished = {\url{https://www.sqlite.org/}},
+	year = {2026},
+}
+
+@misc{tpcTPCHomepage,
+	author = {},
+	title = {{T}{P}{C}-{H}omepage --- tpc.org},
+	howpublished = {\url{https://www.tpc.org/}},
+	year = {},
+	note = {[Accessed 09-10-2024]},
+}
+@misc{oceanbaseOceanBaseMulticloud,
+	author = {},
+	title = {{O}cean{B}ase | {T}he {M}ulti-cloud {D}istributed {D}atabase for {M}ission-critical {W}orkloads at {A}ny {S}cale --- en.oceanbase.com},
+	howpublished = {\url{https://en.oceanbase.com/}},
+	year = {},
+}
+
+@misc{oceanbaseDeploy,
+	author = {{OceanBase, Inc.}},
+	title = {Deploy {OceanBase} Database: Preparations before deployment},
+	howpublished = {\url{https://oceanbase.github.io/docs/user_manual/quick_starts_and_hands_on_practices_in_english/chapter_02_deploy_oceanbase_database/preparation_before_deployment}},
+	year = {},
+	note = {[Accessed 09-10-2024]},
+}
+
+
+
+@misc{man7Fsync2Linux,
+	author = {},
+	title = {fsync(2) - {L}inux manual page --- man7.org},
+	howpublished = {\url{https://man7.org/linux/man-pages/man2/fsync.2.html}},
+	year = {},
+
+}
+
+@misc{smalldatumInnoDBFsync,
+	author = {},
+	title = {{I}nno{D}{B}, fsync and fdatasync - reducing commit latency --- smalldatum.blogspot.com},
+	howpublished = {\url{https://smalldatum.blogspot.com/2020/10/innodb-fsync-and-fdatasync-reducing.html}},
+	year = {},
+
+}
+
+
+@article{DB:OceanBase:VLDB-2022,
+	author = {Yang, Zhenkun and others},
+	title = {{OceanBase}: a 707 million {tpmC} distributed relational database system},
+	year = {2022},
+	issue_date = {August 2022},
+	publisher = {VLDB Endowment},
+	volume = {15},
+	number = {12}, 
+	issn = {2150-8097},
+	doi = {10.14778/3554821.3554830},
+	abstract = {We have designed and developed OceanBase, a distributed relational database system from the very basics for a decade. Being a scale-out multi-tenant system, OceanBase is cross-region fault tolerant, which is based on the shared-nothing architecture. Besides sharing many similar goals with alternative distributed DBMS, such as horizontal scalability, fault-tolerance, etc., our design has been driven by the demands of typical RDBMS compatibility as well as both on-premise and off-premise deployments. OceanBase has fulfilled its design goal. It implements the salient features of certain mainstream classical RDBMS, and most applications on them can run on OceanBase, with or without a few minor modifications. Tens of thousands of OceanBase servers have been deployed in Alipay.com as well as many other commercial organizations. It has also successfully passed the TPC-C benchmark test and seized the first place with more than 707 million tpmC. This paper presents the goals, design criteria, infrastructure, and key components of OceanBase including its engines for storage and transaction processing. Further, it details how OceanBase achieves the above leading TPC-C benchmark in a distributed cluster with more than 1,500 servers from 3 zones. It also describes lessons what we have learnt in building OceanBase for more than a decade.},
+	journal = {Proc. VLDB Endow.},
+	month = aug,
+	pages = {3385–3397},
+	numpages = {13}
+}
+
+@inproceedings {FS:Z-Journal:ATC-2021,
+	author = {Jongseok Kim and Cassiano Campes and Joo-Young Hwang and Jinkyu Jeong and Euiseong Seo},
+	title = {{Z-Journal}: Scalable {Per-Core} Journaling},
+	booktitle = {2021 USENIX Annual Technical Conference (USENIX ATC 21)},
+	year = {2021},
+	isbn = {978-1-939133-23-6},
+	pages = {893--906},
+	url = {https://www.usenix.org/conference/atc21/presentation/kim-jongseok},
+	publisher = {USENIX Association},
+	month = jul
+}
+
+@misc{intel3dxpoint,
+	author = {{Intel Inc.}},
+	title = {{3D} {XPoint}: A Breakthrough in Non-Volatile Memory Technology},
+	howpublished = {\url{https://www.intel.com/content/www/us/en/architecture-and-technology/intel-micron-3d-xpoint-webcast.html}},
+ 
+}
+
+@misc{samsungznand2024,
+	author = {{Samsung Electronics}},
+	title = {Ultra-Low Latency with Samsung ZNAND SSD},
+	howpublished = {\url{https://www.samsung.com/semiconductor/global.semi.static/UltraLow_Latency_with_Samsung_Z-NAND_SSD-0.pdf}},
+ 
+}
+
+@inproceedings{yang2017spdk,
+	title={SPDK: A development kit to build high performance storage applications},
+	author={Yang, Ziye and Harris, James R and Walker, Benjamin and Verkamp, Daniel and Liu, Changpeng and Chang, Cunyin and Cao, Gang and Stern, Jonathan and Verma, Vishal and Paul, Luse E},
+	booktitle={2017 IEEE International Conference on Cloud Computing Technology and Science (CloudCom)},
+	pages={154--161},
+	year={2017},
+	organization={IEEE}
+}
+
+
+
+@inproceedings{10.1145/3575693.3575722,
+	author = {Song, Yongju and Kim, Wook-Hee and Monga, Sumit Kumar and Min, Changwoo and Eom, Young Ik},
+	title = {Prism: Optimizing Key-Value Store for Modern Heterogeneous Storage Devices},
+	year = {2023},
+	isbn = {9781450399166},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3575693.3575722},
+	doi = {10.1145/3575693.3575722},
+	abstract = {As data generation has been on an upward trend, storing vast volumes of data cost-effectively as well as efficiently accessing them is paramount. At the same time, today's storage landscape continues to diversify, from high-bandwidth storage devices such as NVMe SSDs to low-latency non-volatile memory (e.g., Intel Optane DCPMM). These heterogeneous storage devices have the potential to deliver high performance in terms of bandwidth and latency with cost efficiency, while achieving the performance and cost targets together still remains a challenging problem. We provide our solution, Prism, a novel key-value store that utilizes modern heterogeneous storage devices. Prism uses heterogeneous storage devices synergistically to harness the advantages of each storage device while suppressing their downsides. We devise new techniques to balance the latency-bandwidth tradeoff when reading from SSD. For ensuring multicore scalability and crash consistency of data across heterogeneous storage media, Prism proposes cross-storage concurrency control and cross-storage crash consistency protocols. Our evaluation shows that Prism outperforms state-of-the-art key-value stores by up to 13.1\texttimes{} with significantly lower tail latency.},
+	booktitle = {Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2},
+	pages = {588–602},
+	numpages = {15},
+	keywords = {Non-volatile Memory, Key-value Stores, Heterogeneous Storage System},
+	location = {Vancouver, BC, Canada},
+	series = {ASPLOS 2023},
+}
+
+@inproceedings{lee2015waldio,
+	author = {Wongun Lee and others},
+	title = {{WALDIO}: Eliminating the Filesystem Journaling in Resolving the Journaling of Journal Anomaly},
+	booktitle = {2015 USENIX Annual Technical Conference (USENIX ATC 15)},
+	year = {2015},
+	isbn = {978-1-931971-225},
+	address = {Santa Clara, CA},
+	pages = {235--247},
+	publisher = {USENIX Association},
+	month = jul,
+}
+
+@misc{ebpf,
+	author = {{eBPF}},
+	title = {{eBPF}},
+	howpublished = {\url{https://ebpf.io/}},
+	year = {2025},
+	month = Aug,
+}
+
+
+@misc{spdk_blobfs,
+	author = {SPDK},
+	title        = {{SPDK} {BlobFS}: A Userspace File System for {RocksDB}},
+	howpublished = {\url{https://spdk.io/doc/blobfs.html}},
+	year = {2025},
+	month = Aug,
+}
+
+
+
+
+@inproceedings{bpftime,
+	author = {Yusheng Zheng and others},
+	title = {Extending Applications Safely and Efficiently},
+	booktitle = {19th USENIX Symposium on Operating Systems Design and Implementation (OSDI 25)},
+	year = {2025},
+	pages = {557--574},
+	publisher = {USENIX Association},
+	address = {Boston, MA},
+	month = jul,
+}
+
+
+@misc{xfs-exchange-range,
+	author = {Linux Kernel Documentation},
+	title = {{ioctl\_xfs\_exchange\_range(2)}: Exchange the contents of parts of two files},
+	howpublished = {\url{https://man7.org/linux/man-pages/man2/ioctl_xfs_exchange_range.2.html}},
+	year = {2025},
+	month = Aug,
+}

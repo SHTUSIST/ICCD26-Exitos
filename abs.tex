@@ -1,0 +1,43 @@
+\begin{abstract}
+
+%Database practitioners widely employ write-ahead logging.
+%Database 
+
+   Applications widely employ file writes to store data.	
+   %Using file writes to store data is widely used by applications, such as databases.
+    Researchers 
+   have considered optimization tactics in both hardware and software to accelerate file writes.
+   For example, many applications preallocate files in advance to minimize the cost of on-demand space allocation and journaling,
+   while modern solid state drives (SSDs) are equipped with a supercapacitor for the power loss protection (PLP).
+   % optimizations 
+   %have optimized in hardware and software levels to accelerate file writes
+   However, our study shows that, in spite of preallocation-enabled stable file structure and PLP-protected low-latency SSD,
+   % these joint optimizations, 
+   file writes still severely suffer from the heavy {\em runtime software tax} imposed
+   by the operating system (OS), particularly when the file system maps   in-file offsets to
+      device block numbers.
+      
+   In this paper, we develop \odes that provides a new shortcut  for file writes.
+   \odes is a fully {\em all-in-software} design.
+   It makes use of the stable structure enabled by preallocating files and 
+   reorganizes the mappings of offsets-to-block numbers in memory 
+   for quick reference. It then leverages 
+   the eBPF to intercept file write or fdatasync and redirects these calls 
+   %leverages the eBPF to  
+   %an in-memory structure holding offset-to-block numbers for quick reference. Then it 
+   %helps to intercept file write or fdatasync system calls
+   to deliver data directly
+   %go through ioctl interfaces  
+   %take a direct path built by ioctl interfaces
+   from application to device by ioctl interfaces, 
+   with most of the kernel layers bypassed. For non-preallocated files, \odes utilizes the {\em move-extent} feature of Ext4
+   and io\_uring, resembling a preallocation-like effect to take \odes's shortcut path.
+   We use \odes to substitute the path of logging writes for two typical databases, i.e., OceanBase and MySQL.
+   Evaluation results show that \odes significantly improves the performances of both.
+   For example, when serving a write-intensive OLTP workload,
+   \odes boosts the throughput of OceanBase by 2.1$\times$ compared to using Linux's stock storage stack.
+   \odes also outperforms a state-of-the-art design that  relieves the software tax with customized hardware.
+   These verify the efficiency and usability of \odes.
+   
+\end{abstract}
+      
