@@ -1,0 +1,15 @@
+\section{Conclusion}\label{sec:conclusion}
+
+In this paper, 
+we demonstrate  that the heavy software tax charged on database logging  writes
+is amplified with fast storage devices and
+ can be relieved 
+in an all-in-software way. We accordingly develop \odes.
+\odes
+utilizes eBPF to transparently redirect and transform  file operations into actual I/Os with the storage device,
+such that  it manages to bypass the most software layers.
+By exploiting the {\em move-extent} feature of Ext4,
+\odes minimizes the software tax for
+both
+preallocated and non-preallocated log files.
+ Experiments confirm that \odes largely improves the  performance of representative databases.

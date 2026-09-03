@@ -1,0 +1,76 @@
+\section{Background}\label{sec:background}
+
+{\bf  Database logging.}
+Many databases rely on logging for consistency and durability.
+They  persistently write  new or updated data, or operations, in a log file  for recovery in case of power outage or kernel panic
+\cite{DB:OceanBase:VLDB-2022,lee2015waldio,mysql2013mysql}.
+Log files are rarely read except for recovery, so they can be operated in the direct I/O mode, with the OS's page cache bypassed.
+ Moreover, some databases, like the rising-star OceanBase~\cite{DB:OceanBase:VLDB-2022},
+   initialize
+  log files by preallocating tens of gigabytes by default. 
+
+\textbf{File I/O Path.}
+A file operation
+traverses a complex  stack   of multiple software layers 
+before reaching the storage device.
+The top    {\em syscall interface}
+  transitions syscalls such as file write and fsync to the OS kernel  with parameter validation.
+The {\em virtual file system} ({VFS}) then performs inode lookup, interacts with the OS page cache, 
+manages file position tracking, and so on.%
+VFS passes the  operation to
+a {\em specific file system}, e.g.,
+Ext4.
+Ext4
+maps   in-file offsets to device block numbers and   composes block I/O (bio) requests.
+For a write targeting unallocated space, Ext4 allocates   blocks on demand
+and updates the per-file mappings. These metadata changes will trigger
+{\em journaling} for file system consistency, and Ext4 commits modified metadata
+to a  {\em journal}
+before in-place update~\cite{fsync:FastCommit:ATC-2024,fsync:iJournaling:ATC-2017}.
+The {\em bio layer} and {\em I/O scheduler}  manage, merge, and schedule bio requests where necessary. 
+The {\em device driver} translates bio requests to device-specific commands. It finally collects completion or fail signals from the device and
+notifies upper~layers.
+
+\textbf{Software Tax.}	
+Software layers impose heavy tax on the critical path of serving  logging writes.
+Particularly, locating a target block for each write involves a lookup
+in the file's extent tree, by which Ext4 stores the offset-to-block mappings per file. 
+The journaling caused by allocating blocks and updating  per-file mappings 
+entails severe write amplification with multiple writes performed to  the journal and log file \cite{fsync:iJournaling:ATC-2017,fsync:FastCommit:ATC-2024}.
+
+\begin{comment}
+ 
+
+{\bf Software tax for storage I/Os.}
+When an application-level program like OceanBase calls for a file operation,
+I/O request traverses multiple layers of the de facto storage stack, including the Virtual File System (VFS), file system (e.g., Ext4), page cache, bio layer, and device driver, until it reaches the device.
+They mainly carry on two tasks.
+One is to locate the target disk blocks. This is done by the kernel file system that looks up in the per-file mapping with an in-file offset. Ext4 use an extent tree to record the mapping for each file.
+Searching in one such on-disk tree is non-trivial. The other task is to check access permissions.
+Linux uses two protection models for file operations: the common Discretionary Access Control (DAC) and the less common Mandatory Access Control (MAC). DAC checks access
+permission only at opening a file, whereas MAC happens at each I/O request.
+
+\end{comment}
+
+\begin{comment}
+   Emerging memory technologies, like Intel 3D XPoint \cite{intel3dxpoint} and low-latency NAND flash \cite{samsungznand2024}, have paved the way for NVMe SSDs that offer $\mu$s-level latency and millions of I/O operations per second (IOPS).
+With increasingly faster devices, the tax imposed by software layers turns to rise in the overall time cost per I/O request. 
+
+{\bf SOTA solutions.}
+Researchers have studied the reduction or even avoidance of software tax.
+State-of-the-art (SOTA) solutions include NVMeDirect \cite{SSD:NVMeDirect:HotStorage-2016}, SPDK \cite{SSD:SPDK:CloudCom-2017}, Moneta-D \cite{SSD:Moneta-D:ASPLOS-2012}, BypassD \cite{SSD:BypassD:ASPLOS-2024}, etc.
+Using the interfaces provided by NVMeDirect or SPDK, developers can fully bypass the OS kernel. Though, they must reprogram applications and manage data on their own.
+Moneta-D and BypassD incorporate customized hardware for a part of management purposes. In particular, Moneta-D mainly makes a specialized storage device perform permission checks.
+BypassD extends the IOMMU to map in-file offsets to disk blocks and check block-level access permissions.
+Both of them also need to change the file system in the OS kernel.
+\end{comment}
+
+{\bf eBPF.}
+The extended Berkeley Packet Filters (eBPF) \cite{ebpf} was initially developed to filter packets in networks. It now enables advanced capabilities like performance monitoring, security enforcement, and I/O optimization by allowing custom code to run efficiently in the OS kernel.
+A notable feature of eBPF is its ability to transparently alter the execution path of a kernel function and run alternate codes that have been verified~\cite{ebpf,280870}.
+This makes a seamless transition to a new execution path for a particular syscall, without requiring any change to applications.
+eBPF also supports a memory buffer shared at the boundary of kernel and user spaces.
+We will exploit these features to exempt the heavy tax imposed in the software stack on database logging I/Os.
+
+\iffalse
+\fi

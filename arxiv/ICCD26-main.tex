@@ -1,0 +1,85 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\renewcommand{\citepunct}{,\penalty\citepunctpenalty\,}
+\usepackage{epsfig,comment,xspace}
+\usepackage{xurl}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{bbding,pifont}
+\usepackage{amsmath,siunitx}
+\usepackage{amsfonts,newtxmath}
+\usepackage{graphicx,caption,float}
+\usepackage{calc,flushend}
+\usepackage{algorithmic,algorithm}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{yfonts}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{circledsteps}
+\usepackage{fancybox}
+\usepackage{microtype}
+\usepackage{stfloats}
+\usepackage{todonotes}
+\usepackage{makecell}   
+\usepackage{booktabs,soul}  
+\usepackage{xcolor}     
+\usepackage{balance}
+\usepackage{adjustbox}
+
+\newcommand{\odes}{\'Exitos\xspace}
+
+\pagenumbering{arabic}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{\odes: Reducing the Software Tax for\\ Database Logging through a Shortcut I/O Path}
+
+\author{\IEEEauthorblockN{Yanpeng Hu, Li Zhu, Yunxin Yang, and Chundong Wang%
+	}
+	\IEEEauthorblockA{\textit{School of Information Science and Technology} \\
+		\textit{ShanghaiTech University, Shanghai, China}\\
+		\{huyp, zhuli2023, yangyx12023, wangc\}@shanghaitech.edu.cn}
+
+}
+
+\maketitle
+ 
+
+\input{hotstorage/abs}
+
+\begin{IEEEkeywords}
+	Database Logging, Software Tax
+\end{IEEEkeywords}
+
+ \input{hotstorage/intro}
+\input{hotstorage/bg}
+\input{mot2}
+\input{design2}
+\input{eval2}
+\input{hotstorage/conclusion}
+
+\section*{Acknowledgment}
+
+This work was supported by National Key R\&D Program of China No. 2022YFB4401700 and 
+ShanghaiTech Startup Funding. Chundong Wang is the corresponding author.
+
+\bibliographystyle{IEEEtran}
+\bibliography{ioctl4}
+
+\end{document}

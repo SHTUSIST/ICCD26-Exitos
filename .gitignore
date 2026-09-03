@@ -1,5 +1,8 @@
 *.aux
 *.bbl
+# arXiv does not run BibTeX; the submission carries its own .bbl, so that one
+# is tracked even though every other .bbl here is build output.
+!arxiv/*.bbl
 *.blg
 *.log
 *.out
