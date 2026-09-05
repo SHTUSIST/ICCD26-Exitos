@@ -114,7 +114,7 @@ if (tx->ctx->strict &&
 
 > The {\em strict mode} follows MAC compliance for enhanced protection: before every taken-over write it issues a zero-length write on the same descriptor, which runs the kernel's own per-write permission gate --- the security module's \texttt{file\_permission} hook included --- and the write falls back to the conventional path unless that gate allows it.
 
-### 2.3 io_uring 被说成是搬 extent 的机制,实际是后台线程加阻塞 ioctl
+### 2.3 io_uring 被说成是搬 extent 的机制,实际是后台异步线程加 ioctl
 
 **论文位置** 一共六处,两版都有:
 
