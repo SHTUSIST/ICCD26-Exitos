@@ -92,7 +92,7 @@ We further optimize \odes as follows.
 First, we register preallocated donor files in the Maco  structure
 to accelerate  transfers.
 Second, we
-leverage  io\_uring~\cite{iouring} to do asynchronous transfers outside of the critical path.
+perform these transfers on a background preparer thread, outside of the critical path.
 Third,
 We partition the Maco and donor pool  to be  distributed per CPU core for scalability. 
 Last but not the least, we deliver data to storage   by device-specific commands via   ioctl interfaces and enable

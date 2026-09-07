@@ -27,7 +27,26 @@ the `.bbl` that comes with the submission.
 Files that took no part in the build are not here — `abs.tex`, `bg2.tex`,
 `design2-simple.tex`, `ioctl3.bib`, the build scripts and the build directory.
 
-## What was changed, and what was not
+## This tree is no longer a verbatim copy
+
+Two passages were corrected here after the source tree was copied, so the arXiv version and the
+annotated source now differ in content on purpose:
+
+* **Permission checks** (design2.tex, and the matching sentence in *Stale mappings*). The strict
+  mode is now described as the zero-length write probe it is: it runs the kernel's own per-write
+  permission gate and carries none of the file-system cost. The earlier description, an inode
+  attribute check through an ioctl, misses the case it was there to cover -- a tightened SELinux or
+  AppArmor policy changes no inode attribute, so an attribute check cannot see it.
+* **Optimizations** (design2.tex, plus eval2.tex and hotstorage/intro.tex). The asynchronous extent
+  transfer is now attributed to the background preparer thread that performs it, rather than to
+  io_uring. io_uring is used on the device submission path and takes no part in moving extents.
+
+Those changes add one page: this tree builds to 10 pages, the annotated source to 9. The extra page
+carries the last two references.
+
+## The mechanical part: what was changed, and what was not
+
+Apart from the two corrections above, the rest is mechanical.
 
 Comments were removed in two forms: a line that is entirely a comment is
 deleted, and a comment at the end of a line has its text removed. Where the
@@ -45,15 +64,19 @@ fig/eval/sysbench_ob/sysbench_ob_All Insert_latency2.pdf
     -> sysbench_ob_All_Insert_latency2.pdf
 ```
 
-The two `\includegraphics` lines in `eval2.tex` were updated to match. Nothing
-else was touched: no sentence, no number, no citation, no figure content.
+The two `\includegraphics` lines in `eval2.tex` were updated to match. Apart from
+the two corrected passages named above, nothing else was touched: no other
+sentence, no number, no citation, no figure content.
 
 ## How that was checked
 
-This tree was compiled and the result compared against the PDF built from the
-annotated source, page by page. All nine pages are identical in extracted text,
-and rendering both at 150 dpi and differencing them gives zero differing pixels
-on every page.
+The comment removal was verified before the two corrections above were applied: this tree was
+compiled and compared against the PDF built from the annotated source, page by page, and all nine
+pages were identical in extracted text and differed by zero pixels at 150 dpi. So the stripping
+itself changes nothing in the output; what differs now is only the two corrected passages.
+
+The packaged archive is checked the way it will actually be used: extracted into an empty directory
+and compiled there, with no other file present.
 
 ## Rebuilding and packaging
 

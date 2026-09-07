@@ -181,7 +181,7 @@ accordingly. After the space exchange, the growing log file makes the last recei
 To reduce the frequency of space transfers and amortize the runtime cost of each \emph{move-extent} operation, \odes transfers a contiguous range that is larger than a typical logging write. Since logging I/O sizes may vary over time, \odes uses a lightweight monitor to track the moving average of recent write sizes and adjusts the transfer size accordingly. Based on our empirical study, \odes sets each transferred range to four times the observed average logging I/O size, providing sufficient space for several subsequent writes while avoiding excessive space reservation.
 
 If the donor pool cannot satisfy an allocation request or a \emph{move-extent} operation fails, \odes falls back to Ext4's normal allocation path. Moreover, because \odes prepares extents asynchronously
-through io\_uring, a write may arrive before the corresponding
+on a background preparer thread, a write may arrive before the corresponding
 \emph{move-extent} completes. In this case, the write waits for completion
 before using the new mapping, preventing it from observing a partially
 updated mapping.
@@ -208,7 +208,7 @@ cannot satisfy a request for space, or if a move-extent operation fails, \odes
 falls back to Ext4's normal allocation path for the request. The log file remains
 correct, because the correctness of a logging write never depends on the donor
 pool, and the request loses only the acceleration that \odes would otherwise
-provide. Since \odes issues move-extent operations ahead of time through io\_uring, a
+provide. Since \odes issues move-extent operations ahead of time on a background preparer thread, a
 write request may arrive before the move-extent operation that prepares space for
 the write request has completed; in such a case \odes lets the write request wait
 until the move-extent operation completes, so the write request never observes a
@@ -337,14 +337,12 @@ This dual-mode design allows administrators to choose between maximum performanc
 {\bf Optimizations.}
 We   optimize \odes with two tactics.
 First,
-we leverage the   io\_uring~\cite{iouring,ioctlWik84:online} to asynchronously transfer extents for non-preallocated log files.
-The io\_uring provides user-space asynchronous I/O interfaces,
-while
-the eBPF used by \odes 
-sits at the boundary between kernel and user spaces.
+we transfer extents for non-preallocated log files on a background preparer thread,
+so the transfer never sits on the critical path.
+The preparer issues the {\it move-extent} while the application's writes proceed.
 As a result,
 while dealing with an ongoing   write at runtime,
-\odes  simultaneously executes the {\it move-extent} through io\_uring to prepare for future writes.
+\odes  simultaneously prepares space for future writes.
 In brief, it parallelizes handling
 the current logging write with demanding space for   incoming ones.
 This overlapped execution    reduces the cost of invoking   {\it move-extent}
@@ -360,7 +358,7 @@ For persistence, \odes relies on device power-loss protection (PLP) when availab
 
 Finally, \odes introduces no independently persistent mapping metadata. The Maco structure is reconstructed from Ext4's extent tree when the log file is opened, and runtime mapping changes occur only through journaled move-extent operations. \odes writes to transferred space only after move-extent completes, ensuring that Ext4's metadata is updated before the new blocks are used. If move-extent fails or the donor pool lacks sufficient space, \odes falls back to Ext4's normal allocation path.
 
-{\bf Stale mappings.}  \odes keeps cached mappings only while a log file is open. For a preallocated log file, appending to already allocated space does not change its block mappings. For a growing log file, mappings change only through move-extent operations issued by \odes, which update the Maco structure accordingly. When the file is closed, \odes discards the Maco structure and rebuilds it from the file-system metadata upon the next open, preventing changes between opens from leaving stale cached mappings. In strict mode, \odes additionally re-validates permission through a kernel-space LSM check at every operation, and such verification also observes any change of file metadata.
+{\bf Stale mappings.}  \odes keeps cached mappings only while a log file is open. For a preallocated log file, appending to already allocated space does not change its block mappings. For a growing log file, mappings change only through move-extent operations issued by \odes, which update the Maco structure accordingly. When the file is closed, \odes discards the Maco structure and rebuilds it from the file-system metadata upon the next open, preventing changes between opens from leaving stale cached mappings. In strict mode, \odes additionally re-validates permission before every taken-over write through the zero-length probe described below, and such verification also observes any change of file metadata.
 
 {\bf Error reporting.} The ioctl interfaces return the completion status of the
 device to \odes, and \odes maps the completion status onto the same errno that the
@@ -377,8 +375,15 @@ Databases hardly change the access permission of log files, e.g., from read/writ
 Though, we
 make  configurable dual modes for \odes.
 Its {\em fast mode} aligns  with DAC's one-time validation for   performance.
-The {\em strict mode} follows  MAC compliance for enhanced protection
- through   a lightweight kernel-space permission check at the LSM hook of every    operation.
+The {\em strict mode} follows MAC compliance for enhanced protection.
+Before every taken-over write, \odes issues a zero-length write on the same descriptor,
+which runs the kernel's own per-write permission gate, the security module's
+\texttt{file\_permission} hook included.
+\textbf{It carries none of the file-system cost.}
+At a length of zero the write path returns as soon as the gate is passed: no data is
+written, no block is allocated, etc.
+The shortcut proceeds only if that gate allows the write; otherwise the write takes the
+conventional path and the kernel reports the error itself.
 
 {\bf Compatibility.}
 \odes   is  functional with both SATA and NVMe SSDs. This is a contrast to prior designs like BypassD working for NVMe SSDs only.

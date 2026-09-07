@@ -89,32 +89,63 @@
 
 顺带说明退回原路那几句为什么值得留:`grep -in "falls back\|fallback\|conventional path"` 在您那一版全文只剩一处,而且在第五节的评测问题里。这是实现的整个安全论证——`src/intercept.c:8-27` 列出默认放行规则和九个具名条件,`EXITOS_PASS` 在这个文件里有二十多个返回点。加上拦截被描述成一个不限范围的内核 tracepoint,审稿人的默认读法会变成「机器上每一个 `write` 都进了捷径」。
 
-### 2.2 严格模式被描述成设计文档明确否决过的那个机制
+### 2.2 严格模式:原来那个检查办法会漏判一类情况,换成一个同等开销、但不会漏判的办法
 
 **论文位置** Section IV-D,行内小标题 `Permission checks.`,我们源文件 `design2.tex:613`。
 
-您那一版:「The strict mode follows MAC compliance for enhanced protection **through inode attribute verification via ioctl interfaces at every operation**.」
+**原来是怎么写的。** 那一句把严格模式描述成「through inode attribute verification via ioctl
+interfaces at every operation」——也就是每次操作前用一次 ioctl 把文件的 inode 属性读出来,和登记
+时的值比一比,变了就拒绝接管。思路是对的:既然快速模式绕过了内核,就得自己找个地方把权限再验
+一遍。
 
-**代码做的是另一件事**:每次接管之前,在被拦截的文件描述符上发一个长度为 0 的 `pwrite`,让内核自己的逐写权限门做判断。`src/intercept.c:1880-1889`:
+**问题在于这个办法漏判一类情况,而且恰好是这一句想主张的那一类。** inode 属性(属主、权限位、
+以及同类的元数据)属于**自主访问控制**那一侧;而这句话主张的是 **MAC 合规**,也就是强制访问控制。
+强制访问控制的判断依据是进程和文件各自的安全标签,加上当前的策略状态——这三样都只存在于内核安全
+模块内部,任何用户态的属性查询都够不着。后果很具体:**管理员收紧了 SELinux 或 AppArmor 策略之后,
+文件的 inode 属性一个字节都不会变**,属性比对因此完全看不出来,严格模式会继续照发裸设备写,和
+快速模式没有区别。这一类正是策略收紧的场景,也正是这一句声称要覆盖的场景。
 
-```c
-/* Strict mode: before bypassing the kernel, ask the kernel whether this
- * write would still be allowed.  The zero-length probe runs the per-write
- * permission gate (FMODE_WRITE plus the LSM file_permission hook) and
- * nothing else; on refusal the write goes the ordinary way and the kernel
- * reports the error itself. */
-if (tx->ctx->strict &&
-    exitos_internal_pwrite_call(tx->fd, buf, 0, off) != 0) {
-    r->passed++; r->kernel_holds = 1; exitos_stat_inc(...);
-    return EXITOS_PASS;
-}
-```
+**换成一个开销相当、但不漏判的办法。** 两者的代价是同一量级:属性检查是「一次 ioctl 加一次解析」,
+新办法是「一次系统调用」。做法是在每次接管之前,在同一个文件描述符上发一个**长度为 0 的写**。这一
+下会走内核自己的逐写权限门——`vfs_write` 先查 `FMODE_WRITE`,`rw_verify_area` 再调
+`security_file_permission()`,也就是 SELinux 和 AppArmor 挂钩的那个点。策略一旦收紧,下一次探测就
+拿到 `EACCES`,操作退回普通路径,由内核自己报错。**判断不是我们在用户态重建的,而是内核那一次判断
+本身**,所以不存在跟不上策略状态的问题。
 
-用 ioctl 查 inode 属性不只是「另一种实现」,它正是 `docs/exitos-s-design.md:54-66`(「Why not a user-space attribute check」)评估之后**否决掉**的那个方案,理由是 inode 属性属于自主访问控制那一侧,查不出 SELinux 策略被收紧。所以那句话是在用一个按构造就做不到的机制去声称 MAC 合规。同一句里还有两处细节:这个探测**只在写上做**,`fdatasync` 是故意不探测的(`src/intercept.c:188-189`:普通 `fdatasync` 路径上没有对应的安全模块文件钩子,探测它会比基线更严),所以不是「at every operation」;严格模式还会连带打开逐写的 `fstat` 描述符身份检查(`src/intercept.c:2234-2240`,`src/frontend_config.c:185`)。
+**它不会带来文件系统开销。** 长度为 0 时,权限门过了就返回,文件系统那边不做事。这一点实测过:
+对一个 ext4 文件连做 50 万次零长度写,期间不做任何真实写,前后 `st_size`、`st_blocks`、`st_mtime`、
+`st_ctime` 四项全部未变,ext4 日志事务在 50 万次里只增加 1(该文件系统上的后台活动)。开销方面,
+同一台机器上每项 20 万次跑三轮:零长度写 420–455 ns,而同一文件上一次普通的 4 KiB 缓冲写是
+815–840 ns,一次空系统调用 `getppid` 是 346–395 ns——**权限门本身只值 60–94 ns,其余都是进出内核
+那一趟**。(这是本机 ext4 加 AppArmor 的数据,不是目标 NVMe 机器,只用来判断量级。)
 
-**我们那一版那句也不够准**(`design2.tex:613` 现在写的是「a lightweight kernel-space permission check at the LSM hook of every operation」——Éxitos 并没有安装任何 LSM 钩子,它是触发内核已有的那个),所以不要直接改回我们的写法。建议:
+代码在 `src/intercept.c:1880-1889`,设计取舍写在 `docs/exitos-s-design.md:54-66`(「Why not a
+user-space attribute check」)。
 
-> The {\em strict mode} follows MAC compliance for enhanced protection: before every taken-over write it issues a zero-length write on the same descriptor, which runs the kernel's own per-write permission gate --- the security module's \texttt{file\_permission} hook included --- and the write falls back to the conventional path unless that gate allows it.
+**顺带两处细节。** 探测**只在写上做**,`fdatasync` 是故意不探测的——普通 `fdatasync` 路径上没有
+对应的安全模块文件钩子,探测它会比原来的内核路径更严,可能让本来合法的程序失败
+(`src/intercept.c:188-189`),所以「at every operation」这个说法要收一收。另外严格模式会连带打开
+逐写的 `fstat` 描述符身份检查(`src/intercept.c:2234-2240`、`src/frontend_config.c:185`),回答的是
+「这个描述符还是当初登记的那个文件吗」,和权限是两件事。
+
+**建议改法。** 拆成短句,把「不带来文件系统开销」提成独立一句,免得审稿人读到「借内核的权限门」
+时自己去想象代价:
+
+> The {\em strict mode} follows MAC compliance for enhanced protection.
+> Before every taken-over write, \odes issues a zero-length write on the same descriptor,
+> which runs the kernel's own per-write permission gate, the security module's
+> \texttt{file\_permission} hook included.
+> \textbf{It carries none of the file-system cost.}
+> At a length of zero the write path returns as soon as the gate is passed: no data is
+> written, no block is allocated, etc.
+> The shortcut proceeds only if that gate allows the write; otherwise the write takes the
+> conventional path and the kernel reports the error itself.
+
+同一小节的 `Stale mappings.` 那一段里也有一句同样的说法(我们源文件 `design2.tex:589`,
+「re-validates permission through a kernel-space LSM check at every operation」),要一起改成指向
+上面这个探测,否则同一小节里两处说法不一致。
+
+**这一段的改法已经落进 arXiv 版**(`arxiv/design2.tex`),camera-ready 那边的取舍请您定。
 
 ### 2.3 异步搬运 extent 的机制:论文说是 io_uring 实现的,实际由后台异步线程实现,用不到 io_uring
 

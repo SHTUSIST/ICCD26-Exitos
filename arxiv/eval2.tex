@@ -202,7 +202,7 @@ Hence, users can consider either mode as needed, while \odes-S provides stronger
 \subsection{The Effect of Online Preallocation}\label{sec:eval:preallocation}
 
 We have presented a test of on-the-fly space allocation in Section \ref{sec:motivation}  (see \autoref{fig:mot:prealloc-throughput}).
-Before testing with a real-world   growing log file, we evaluate the effect of \odes's preallocation-like strategy that makes use of the {\em move-extent} feature of Ext4 as well as the io\_uring technique.
+Before testing with a real-world   growing log file, we evaluate the effect of \odes's preallocation-like strategy that makes use of the {\em move-extent} feature of Ext4 issued from a background preparer thread.
 We repeat the same test onto \odes with a continuous  series of appending writes accumulated to overall 10GB, with 4KB, 8KB, 16KB, 32KB, 64KB, or 128KB
 per write. We configure \odes to 
 asynchronously preallocate 64KB, 256KB, or 1MB from donor files.
@@ -273,7 +273,7 @@ We next
 run three SysBench  workloads  as used in Section~\ref{sec:eval:ob}. 
 Since there are two logs in MySQL, we make three variants, i.e., \odes handling writes to both logs, \odes-B handling binlog only, and \odes-R handling redo log only.
 All of them apply the default DAC for permission checks. In particular,
-\odes and \odes-B frequently call the {\em move-extent} and io\_uring
+\odes and \odes-B frequently call the {\em move-extent} on a background preparer thread
 to extend the binlog file in a timely and asynchronous fashion,
 resembling a preallocation effect on the fly.
 Like what we have done with OceanBase,
