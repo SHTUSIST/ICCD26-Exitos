@@ -12,16 +12,11 @@
 
 ## 零、这里说的是哪几版,分别在哪里看
 
-本文档里所有 `.tex` 行号都出自论文仓库的提交 `92f154d`,也就是我们提交 camera-ready 时的那份源码;
-所有实现代码行号(`src/...`、`include/...`、`docs/...`)都出自代码仓库的提交 `a8cc39b`。同时在场的
-一共四版,列在这里免得混:
+论文一共四版同时在场,加上实现代码,列在这里免得混:
 
-**我们这一版** —— 本文档全部 `.tex` 行号的出处。
+**我们这一版(我和朱莉改的那一版)** —— 本文档全部 `.tex` 行号的出处。
 源码 <https://github.com/SHTUSIST/ICCD26-Exitos/tree/92f154d>
 渲染 PDF <https://github.com/SHTUSIST/ICCD26-Exitos/blob/92f154d/ICCD26-Exitos-camera-ready.pdf>
-
-**审稿接收版** —— 投稿被接收时那一版,尚未按审稿意见修改。
-<https://github.com/SHTUSIST/ICCD26-Exitos/tree/accepted> (标签 `accepted`,提交 `acf2ded`)
 
 **您返回的修改版** —— 本文档逐句核对的对象。我这边只有 PDF、没有源码,所以本文档不给它的行号,
 只引原句;章节号和行内小标题两者合起来足以定位。
@@ -32,6 +27,9 @@
 **实现代码** —— 本文档全部源码行号的出处。
 <https://github.com/toast-lab/exitos/tree/a8cc39b> (同一份也在
 <https://github.com/SHTUSIST/ICCD26-Exitos/tree/a8cc39b> )
+
+**审稿接收版** —— 投稿被接收时那一版,尚未按审稿意见修改。本文档不引用它,列出来只为对照。
+<https://github.com/SHTUSIST/ICCD26-Exitos/tree/accepted> (标签 `accepted`,提交 `acf2ded`)
 
 上面那份渲染 PDF 与由 `92f154d` 现场编译出来的结果是同一个文档:九页逐页比对,用词完全相同——
 只有表 I 的堆叠表头因取字位置不同被切成了不同的词片;像素差异每页不到 0.5%,来自
