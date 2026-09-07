@@ -1,6 +1,6 @@
 # 修改版与我们提交版的逐节对比核查
 
-> 这份文档是把您返回的修改版和我们提交前那一版逐节对了一遍的结果。按您邮件的要求,**第一节就是您点名要的三类具体位置**——一处图标题、七处引用、三处语法——每一条都写成同一个形状:论文的第几节第几小节、行内小标题、我们源文件的行号、原句、以及改成什么。
+> 这份文档是把您返回的修改版和我们提交前那一版逐节对了一遍的结果。按您邮件的要求,**第一节就是您点名要的具体位置**——一处图标题、七处引用——每一条都写成同一个形状:论文的第几节第几小节、行内小标题、我们源文件的行号、原句、以及改成什么。您提到的语法一类,我们逐句核过之后没有找到确实成立的,所以这一节不列。
 >
 > **坐标怎么读。** 章节号是按 `ICCD26-main.tex` 里 `\else` 分支的 input 顺序数 `\section` 与 `\subsection` 推出来的,并用 `build/ICCD26-main.aux` 里的 `\newlabel` 对过,不是估的。行内小标题指 `{\bf ...}` 或 `\textbf{...}` 那种段首粗体。行号是**我们这一版**源文件的行号;您那一版行号不同,但章节号、小标题和原句三者合起来足以定位。凡是说「代码里是怎样」的地方,给的是实现仓库里的文件名加行号,每一个都开文件核过。
 >
@@ -8,7 +8,7 @@
 
 ---
 
-## 一、您点名的三类,共 11 处
+## 一、您点名的类别,共 8 处
 
 ### 1.1 图标题:1 处
 
@@ -40,16 +40,6 @@
 **另有一处排版回退,不是内容错。** [1]、[4]、[7]、[13] 的页码印成了 `p.` 而不是 `pp.`。原因当场复现过:`IEEEtran.bst` 只认 ASCII 连字符,`pages` 字段换成 Unicode en-dash 之后判定失败,退成单数的 `p.`。这四条恰好全是 ACM 和 IEEE 的条目,像是从数字图书馆重新粘贴过。我们 `ioctl4.bib` 里仍然是正确的 `--` 写法(例如 [4] 在 `ioctl4.bib:37` 是 `pages   = {1720--1733},`)。有一处我们两次读数不一致,建议直接看 PDF 确认:**[7] 的页码**,一次读到 `p. 228–243`,另一次读到 `p. 228 243`(连字符也丢了)。
 
 其余三处更轻:作者列表新做的「first author et al.」截断漏了 [4](同样六个作者的 [3] 被截断了);[7] 和 [13] 的会议城市被换成了 ACM 的公司地址(纽约);[14] 的会议录标题少了 `, Volume 1`(我们 `ioctl4.bib:137` 有)。[2] MySQL 的年份从 2026 退回 2025,而 `mysql.com` 页脚现在写的是「© 2026 Oracle」;我们 `ioctl4.bib:13` 那条仍是 `@misc` 加 year 2026。
-
-### 1.3 语法:3 处
-
-| # | 论文位置 | 我们源文件 | 原句 | 改成 |
-|---|---|---|---|---|
-| 1 | **Section II**,行内小标题 `Database logging.` | `hotstorage/bg.tex:6` | 您那一版写的是 `Databases logging.` | `Database logging.` —— 删掉那个 s。这也是全文其它地方一律使用的术语(摘要「Database logging relies on file write and fsync」、`mot2.tex:29`、`design2.tex:181`) |
-| 2 | **Section IV-C**,行内小标题 `Moving extents.` | `design2.tex:280` | `The move-extent is a feature that Ext4 file system uses for online defragmentation` —— 缺冠词 | `that **the** Ext4 file system uses` |
-| 3 | **Section II**,行内小标题 `Database logging.` | `hotstorage/bg.tex:10` | 您那一版把 `rarely read` 改成了 `hardly read`。`hardly` 后面要跟 `ever` | `rarely read`,或 `hardly ever read`。这一条介于语法和习惯之间,若您认为不算硬性错误,以您为准 |
-
----
 
 ## 二、机制描述与实现对不上的地方
 
@@ -114,7 +104,7 @@ if (tx->ctx->strict &&
 
 > The {\em strict mode} follows MAC compliance for enhanced protection: before every taken-over write it issues a zero-length write on the same descriptor, which runs the kernel's own per-write permission gate --- the security module's \texttt{file\_permission} hook included --- and the write falls back to the conventional path unless that gate allows it.
 
-### 2.3 io_uring 被说成是搬 extent 的机制,实际是后台异步线程加 ioctl
+### 2.3 异步搬运 extent 的机制:论文说是 io_uring 实现的,实际由后台异步线程实现,用不到 io_uring
 
 **论文位置** 一共六处,两版都有:
 
@@ -127,9 +117,11 @@ if (tx->ctx->strict &&
 | Section V-E | `eval2.tex:421` | `frequently call the move-extent and io uring to extend the binlog file` |
 | Section I(引言贡献列表) | `hotstorage/intro.tex:141` | `Second, we leverage io\_uring~\cite{iouring} to do asynchronous transfers outside of the critical path` |
 
-**代码里异步来自一个后台线程,不是 io_uring**:`src/donor_async.c:174` 是 `pthread_create(&a->th, NULL, preparer, a)`,那个线程里调 `src/donor_async.c:110` 的 `donor_extend()`,里面是阻塞的 `ioctl(target_fd, EXT4_IOC_MOVE_EXT, &me)`(`src/donor.c:682`)。io_uring 只出现在设备提交后端 `src/iopath.c`(`:553` 的 `io_uring_setup_raw`)。头文件 `include/exitos_donor_async.h:12` 写得很直白:写路径只碰 `donor_async_runway()`,「a plain memory read: no ioctl, no io_uring」。
+**异步这个说法是对的,给它安的机制不对。异步来自一个后台线程,整条路径上用不到 io_uring。** `src/donor_async.c:174` 起一个准备线程 `pthread_create(&a->th, NULL, preparer, a)`,搬运在那个线程里完成——`src/donor_async.c:110` 调 `donor_extend()`,落到 `src/donor.c:682` 的 `ioctl(target_fd, EXT4_IOC_MOVE_EXT, &me)`。写者不等它:`include/exitos_donor_async.h:12` 写得很直白,写路径只碰 `donor_async_runway()`,「a plain memory read: no ioctl, no io_uring」。异步性由「搬运在另一个线程上、写者不阻塞」提供,不是由 io_uring 提供。
 
-异步这个说法是对的,给它安的机制不对。另外,内核 6.6.5 的 io_uring 没有通用 ioctl 操作码,所以这句不只是「没实现」,按字面也做不到——做 io_uring 的审稿人会直接问哪个操作码承载 `MOVE_EXT`。**建议改成** `we perform the extent transfer on a background preparer thread, off the critical path`,io_uring 留在它真正所在的设备路径上。
+io_uring 在实现里只出现在设备提交后端 `src/iopath.c`(`:553` 的 `io_uring_setup_raw`),与搬运 extent 无关。而且内核 6.6.5 的 io_uring 没有通用 ioctl 操作码,所以这句不只是「没这么实现」,按字面也做不到——做 io_uring 的审稿人会直接问哪个操作码承载 `MOVE_EXT`。
+
+**建议改成** `we perform the extent transfer on a background preparer thread, off the critical path`,把 io_uring 留在它真正所在的设备提交路径上。
 
 ### 2.4 同一句里 io_uring 被引到了 ioctl(2) 手册页
 
