@@ -94,39 +94,26 @@
 **论文位置** Section IV-D,行内小标题 `Permission checks.`,我们源文件 `design2.tex:613`。
 
 **原来是怎么写的。** 那一句把严格模式描述成「through inode attribute verification via ioctl
-interfaces at every operation」——也就是每次操作前用一次 ioctl 把文件的 inode 属性读出来,和登记
-时的值比一比,变了就拒绝接管。思路是对的:既然快速模式绕过了内核,就得自己找个地方把权限再验
-一遍。
+interfaces at every operation」——每次操作前用一次 ioctl 把文件的 inode 属性读出来,和登记时的值比一比,
+变了就拒绝接管。思路是对的:既然快速模式绕过了内核,就得自己找个地方把权限再验一遍。
 
-**问题在于这个办法漏判一类情况,而且恰好是这一句想主张的那一类。** inode 属性(属主、权限位、
-以及同类的元数据)属于**自主访问控制**那一侧;而这句话主张的是 **MAC 合规**,也就是强制访问控制。
-强制访问控制的判断依据是进程和文件各自的安全标签,加上当前的策略状态——这三样都只存在于内核安全
-模块内部,任何用户态的属性查询都够不着。后果很具体:**管理员收紧了 SELinux 或 AppArmor 策略之后,
-文件的 inode 属性一个字节都不会变**,属性比对因此完全看不出来,严格模式会继续照发裸设备写,和
-快速模式没有区别。这一类正是策略收紧的场景,也正是这一句声称要覆盖的场景。
+**问题是,管理员收紧 AppArmor 或 SELinux 策略之后,这个检查就失效了。** 策略收紧不改动文件的任何
+inode 属性,属性比对因此看不出来,严格模式会继续照发裸设备写。而这恰恰是这一句声称要覆盖的场景。
 
-**换成一个开销相当、但不漏判的办法。** 两者的代价是同一量级:属性检查是「一次 ioctl 加一次解析」,
-新办法是「一次系统调用」。做法是在每次接管之前,在同一个文件描述符上发一个**长度为 0 的写**。这一
-下会走内核自己的逐写权限门——`vfs_write` 先查 `FMODE_WRITE`,`rw_verify_area` 再调
-`security_file_permission()`,也就是 SELinux 和 AppArmor 挂钩的那个点。策略一旦收紧,下一次探测就
-拿到 `EACCES`,操作退回普通路径,由内核自己报错。**判断不是我们在用户态重建的,而是内核那一次判断
-本身**,所以不存在跟不上策略状态的问题。
+**换成一个开销相当、但不会漏判的办法。** 两者代价同一量级:属性检查是「一次 ioctl 加一次解析」,
+新办法是「一次系统调用」。做法是在每次接管之前,在同一个文件描述符上发一个**长度为 0 的写**。这一下
+会走内核自己的逐写权限门——`vfs_write` 先查 `FMODE_WRITE`,`rw_verify_area` 再调
+`security_file_permission()`,也就是 AppArmor 和 SELinux 挂钩的那个点。策略一旦收紧,下一次探测就拿到
+`EACCES`,操作退回普通路径,由内核自己报错。**判断不是我们在用户态重建的,而是内核那一次判断本身。**
 
-**它不会带来文件系统开销。** 长度为 0 时,权限门过了就返回,文件系统那边不做事。这一点实测过:
-对一个 ext4 文件连做 50 万次零长度写,期间不做任何真实写,前后 `st_size`、`st_blocks`、`st_mtime`、
-`st_ctime` 四项全部未变,ext4 日志事务在 50 万次里只增加 1(该文件系统上的后台活动)。开销方面,
-同一台机器上每项 20 万次跑三轮:零长度写 420–455 ns,而同一文件上一次普通的 4 KiB 缓冲写是
-815–840 ns,一次空系统调用 `getppid` 是 346–395 ns——**权限门本身只值 60–94 ns,其余都是进出内核
-那一趟**。(这是本机 ext4 加 AppArmor 的数据,不是目标 NVMe 机器,只用来判断量级。)
+**它不会带来文件系统开销。** 长度为 0 时,权限门过了就返回,文件系统那边不做事。实测:对一个 ext4
+文件连做 50 万次零长度写,期间不做任何真实写,前后 `st_size`、`st_blocks`、`st_mtime`、`st_ctime`
+四项全部未变,ext4 日志事务在 50 万次里只增加 1(该文件系统上的后台活动)。开销方面,同机每项 20 万次
+跑三轮:零长度写 420–455 ns,同一文件上一次普通 4 KiB 缓冲写 815–840 ns,一次空系统调用 `getppid`
+346–395 ns——**权限门本身只值 60–94 ns,其余都是进出内核那一趟**。(本机 ext4 加 AppArmor 的数据,
+不是目标 NVMe 机器,只用来判断量级。)
 
-代码在 `src/intercept.c:1880-1889`,设计取舍写在 `docs/exitos-s-design.md:54-66`(「Why not a
-user-space attribute check」)。
-
-**顺带两处细节。** 探测**只在写上做**,`fdatasync` 是故意不探测的——普通 `fdatasync` 路径上没有
-对应的安全模块文件钩子,探测它会比原来的内核路径更严,可能让本来合法的程序失败
-(`src/intercept.c:188-189`),所以「at every operation」这个说法要收一收。另外严格模式会连带打开
-逐写的 `fstat` 描述符身份检查(`src/intercept.c:2234-2240`、`src/frontend_config.c:185`),回答的是
-「这个描述符还是当初登记的那个文件吗」,和权限是两件事。
+代码在 `src/intercept.c:1880-1889`,设计取舍写在 `docs/exitos-s-design.md:54-66`。
 
 **建议改法。** 拆成短句,把「不带来文件系统开销」提成独立一句,免得审稿人读到「借内核的权限门」
 时自己去想象代价:
@@ -171,25 +158,6 @@ io_uring 在实现里只出现在设备提交后端 `src/iopath.c`(`:553` 的 `i
 **论文位置** Section IV-D,行内小标题 `Optimizations.`,我们源文件 `design2.tex:507`。
 
 `\cite{iouring,ioctlWik84:online}` 渲染成 `[16, 18]`。其中 `ioctlWik84:online`(我们 `ioctl4.bib:152`,编号 [16])是 `ioctl: System calls manual`,`iouring`(`ioctl4.bib:166`,编号 [18])才是 Axboe 的 io_uring 文档。**改成只留 `\cite{iouring}`。**
-
-### 2.5 摘要把两个最好情况的数字当成一般结果,而且量级写反了
-
-**论文位置** 摘要,我们源文件 `hotstorage/abs.tex:20`。
-
-原句:`that \odes boosts throughput **by** 2.1$\times$ and 1.6$\times$ for OceanBase and MySQL, respectively.`
-
-2.1× 是单客户端 OLTP-write-only 那一个点,同一节在 32 客户端下报的是 21.4%;1.6× 是 OLTP-all-insert 那一个点,另外两个 MySQL 负载是 53.3% 和 21.0%。引言写的是「up to 2.1×」,摘要把限定词丢了。另外 `boosts throughput **by** 2.1×` 把一个 +110% 的结果说成 +210%,实测是吞吐**达到** 2.1× 和 1.6×。**改法:把 `by` 改成 `to`,并考虑补回 `up to`。**
-
-### 2.6 「60.2% ... on average」与第三节自相矛盾
-
-**论文位置** Section I,我们源文件 `hotstorage/intro.tex:51`;与之矛盾的是 Section III,`mot2.tex:152-154`。
-
-- 引言(`hotstorage/intro.tex:51`):`the software tax accounts for 60.2\% time for a logging write on average.`
-- 第三节 𝕆2(`mot2.tex:152-154`):`the runtime software tax increasingly dominates I/O latency as devices become faster, reaching 60.2\% for the NVMe SSD.`
-
-图 1b 里 HDD 的软件时间约 8%,不带掉电保护的 SATA SSD 约 17%,所以 60.2% 不是四个设备的平均值,是最大值。**改引言:把 `on average` 换成 `on a low-latency NVMe SSD`。** 这两行是全文仅有的两处 `60.2`。
-
----
 
 ## 三、被删掉的段落(按您邮件不进 camera-ready,列此备查)
 
@@ -237,13 +205,3 @@ io_uring 在实现里只出现在设备提交后端 `src/iopath.c`(`:553` 的 `i
 - **不打算报告的差异**:新增的第二单位、移到首页的基金脚注、压缩后的文献格式、图 3 / 图 4 浮动体位置的调整,都属编辑层面的决定。
 
 另有一条两版都有:[7](`ioctl4.bib:60`,OptFS)列在文献表里但正文从未单独引用,只出现在 [6]–[10] 那个成组引用里。
-
----
-
-## 六、取不到的东西,分清是哪一种
-
-- **IEEE Xplore** 对自动抓取返回 HTTP 418 且只走 JavaScript。[4] 的书目信息因此走 Crossref、OpenAlex、Semantic Scholar(三者都带 IEEE 自己提交的记录),全文用的是 KAIST OSLab 作者主页上挂的 PDF(文件名就是 IEEE 文章号 07172998,可据此确认同一篇)。要读 Xplore 页面本身,需要人在浏览器里取。
-- **ACM 数字图书馆**返回 403。[14] 因此走 Crossref 加合作者主页的 PDF(`cgi.di.uoa.gr/~vkarakos/papers/asplos24_bypassd.pdf`),两者对得上(页码 35–51,正好 17 页,与 ACM Reference Format 里的「17 pages」一致)。
-- **usenix.org** 对不带浏览器 User-Agent 的自动抓取返回 403,带上之后正常,所有 USENIX 条目都是从真实的会议录页面读的。
-- **intel.com** 带浏览器 User-Agent 时对新旧两个地址都返回 403(机器人过滤),所以判 [21] 是 404 用的是不带 UA 那一次,那一次返回的是 Intel 自己的错误页。
-- **两条结论用的是存档而不是实时页面,日期就写在结论旁边**:[22] 的内容取自 **2020-09-24** 的 Wayback 快照(`confluera.com` 今天不解析);[18] 的文档身份取自 **2026-06-24** 的快照(`kernel.dk/io_uring.pdf` 今天返回 404,最早一条 404 记录是 2026-07-22,也就是这个地址大约两个月前才坏;文档本身是真的,8 页,版本行写着 `Version: 0.4, 2019-10-15`)。这一条影响我们 `ioctl4.bib:169` 那个地址,两版都受影响。
