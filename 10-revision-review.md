@@ -1,6 +1,6 @@
 # 修改版与我们提交版的逐节对比核查
 
-> 这份文档是把您返回的修改版和我们提交前那一版逐节对了一遍的结果。按您邮件的要求,**第一节就是您点名要的三类具体位置**——一处图标题、七处引用、三处语法——每一条都写成同一个形状:论文的第几节第几小节、行内小标题、我们源文件的行号、原句、以及改成什么。
+> 这份文档是把您返回的修改版和我们提交前那一版逐节对了一遍的结果。按您邮件的要求,**第一节就是您点名要的三类具体位置**——一处图标题、七处引用、两处语法——每一条都写成同一个形状:论文的第几节第几小节、行内小标题、我们源文件的行号、原句、以及改成什么。
 >
 > **关于 `hotstorage/` 这个目录名。** 它是历史遗留的名字,里面那四个文件正是本篇 ICCD 论文的摘要、Section I、Section II 和 Section VI:`ICCD26-main.tex` 第 72 行 `\input{hotstorage/abs}`,生效的 `\else` 分支里 `\input{hotstorage/intro}`、`\input{hotstorage/bg}`、`\input{hotstorage/conclusion}`。当初提交给 ICCD 的那一版就是这样组织的,没有另一份 HotStorage 文稿。本文档里凡是引用这个目录下行号的条目,对应句子都在编译出来的 ICCD 正文里,并且在您那一版的 PDF 里逐句核到过。
 >
@@ -37,7 +37,7 @@
 
 ---
 
-## 一、您点名的三类,共 11 处
+## 一、您点名的三类,共 10 处
 
 ### 1.1 图标题:1 处
 
@@ -70,13 +70,12 @@
 
 其余三处更轻:作者列表新做的「first author et al.」截断漏了 [4](同样六个作者的 [3] 被截断了);[7] 和 [13] 的会议城市被换成了 ACM 的公司地址(纽约);[14] 的会议录标题少了 `, Volume 1`(我们 `ioctl4.bib:137` 有)。[2] MySQL 的年份从 2026 退回 2025,而 `mysql.com` 页脚现在写的是「© 2026 Oracle」;我们 `ioctl4.bib:13` 那条仍是 `@misc` 加 year 2026。
 
-### 1.3 语法:3 处
+### 1.3 语法:2 处
 
 | # | 论文位置 | 我们源文件 | 原句 | 改成 |
 |---|---|---|---|---|
 | 1 | **Section II**,行内小标题 `Database logging.` | `hotstorage/bg.tex:6` | 您那一版写的是 `Databases logging.` | `Database logging.` —— 删掉那个 s。这也是全文其它地方一律使用的术语(摘要「Database logging relies on file write and fsync」、`mot2.tex:29`、`design2.tex:181`) |
-| 2 | **Section IV-C**,行内小标题 `Moving extents.` | `design2.tex:280` | `The move-extent is a feature that Ext4 file system uses for online defragmentation` —— 缺冠词 | `that **the** Ext4 file system uses` |
-| 3 | **Section II**,行内小标题 `Database logging.` | `hotstorage/bg.tex:10` | 您那一版把 `rarely read` 改成了 `hardly read`。`hardly` 后面要跟 `ever` | `rarely read`,或 `hardly ever read`。这一条介于语法和习惯之间,若您认为不算硬性错误,以您为准 |
+| 2 | **Section II**,行内小标题 `Database logging.` | `hotstorage/bg.tex:10` | 您那一版把 `rarely read` 改成了 `hardly read`。`hardly` 后面要跟 `ever` | `rarely read`,或 `hardly ever read`。这一条介于语法和习惯之间,若您认为不算硬性错误,以您为准 |
 
 ---
 
